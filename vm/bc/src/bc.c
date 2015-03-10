@@ -62,6 +62,7 @@ static VM* vm = NULL;
 static jint addressClassLookupsCount = 0;
 static AddressClassLookup* addressClassLookups = NULL;
 
+#pragma weak main
 int main(int argc, char* argv[]) {
     options.mainClass = (char*) _bcMainClass;
     options.rawBootclasspath = _bcBootclasspath;
@@ -78,6 +79,7 @@ int main(int argc, char* argv[]) {
     options.staticLibs = _bcStaticLibs;
     options.listBootClasses = listBootClasses;
     options.listUserClasses = listUserClasses;
+    fprintf(stderr, "Chris Fogelklou's Own Build Number TOO!!!\n");
     if (!rvmInitOptions(argc, argv, &options, FALSE)) {
         fprintf(stderr, "rvmInitOptions(...) failed!\n");
         return 1;
