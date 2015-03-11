@@ -10,6 +10,7 @@ add_library(robovm-bc STATIC
   bc.c
   classinfo.c
   MurmurHash3.c
+  bcinvoke.c
 )
 
 set_target_properties(robovm-bc PROPERTIES SUFFIX "${LIB_SUFFIX}")

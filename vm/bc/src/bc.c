@@ -62,8 +62,9 @@ static VM* vm = NULL;
 static jint addressClassLookupsCount = 0;
 static AddressClassLookup* addressClassLookups = NULL;
 
-#pragma weak main
-int main(int argc, char* argv[]) {
+
+int bcmain(int argc, char* argv[]) {
+
     options.mainClass = (char*) _bcMainClass;
     options.rawBootclasspath = _bcBootclasspath;
     options.rawClasspath = _bcClasspath;
@@ -79,7 +80,14 @@ int main(int argc, char* argv[]) {
     options.staticLibs = _bcStaticLibs;
     options.listBootClasses = listBootClasses;
     options.listUserClasses = listUserClasses;
-    fprintf(stderr, "Chris Fogelklou's Own Build Number TOO!!!\n");
+    {
+        fprintf(stderr, "Chris Fogelklou's Own Build Number SIX took %d params!!!\n", argc);
+        int i;
+        for (i = 0; i < argc; i++) {
+            fprintf(stderr, "p%d = %s\n", i, argv[i]);
+        }
+    }
+
     if (!rvmInitOptions(argc, argv, &options, FALSE)) {
         fprintf(stderr, "rvmInitOptions(...) failed!\n");
         return 1;
@@ -92,8 +100,16 @@ int main(int argc, char* argv[]) {
     vm = env->vm;
     jint result = rvmRun(env) ? 0 : 1;
     rvmShutdown(env, result);
+
     return result;
 }
+
+#if 0
+#pragma weak main
+int main(int argc, char* argv[]) {
+    bcmain( argc, argv );
+}
+#endif
 
 static ClassInfoHeader** getClassInfosBase(void* hash) {
     hash += sizeof(jint); // Skip count
@@ -992,3 +1008,146 @@ void _bcHookInstrumented(DebugEnv* debugEnv, jint lineNumber, jint lineNumberOff
     // Restore the exception if one had been thrown when this function was called.
     env->throwable = throwable;
 }
+
+
+/*
+  JNI_GetDefaultJavaVMInitArgs()
+
+  Returns a default configuration for the Java VM. Before calling this function,
+  native code must set the vm_args->version field to the JNI version it expects
+  the VM to support. After this function returns, vm_args->version will be set
+  to the actual JNI version the VM supports.
+
+  LINKAGE:
+  Exported from the native library that implements the Java virtual machine.
+
+  PARAMETERS:
+  vm_args: a pointer to a JavaVMInitArgs structure in to which the default
+  arguments are filled.
+
+  RETURNS:
+  Returns JNI_OK if the requested version is supported; returns a JNI error code
+  (a negative number) if the requested version is not supported.
+ */
+jint JNI_GetDefaultJavaVMInitArgs(void* vm_args) {
+    return JNI_OK;
+}
+
+/*
+  Loads and initializes a Java VM. The current thread becomes the main thread.
+  Sets the env argument to the JNI interface pointer of the main thread.
+
+  As of JDK/JRE 1.2 , creation of multiple VMs in a single process is not supported.
+  The second argument to JNI_CreateJavaVM is always a pointer to JNIEnv *, while
+  the third argument is a pointer to a JavaVMInitArgs structure which uses option
+  strings to encode arbitrary VM start up options:
+
+  typedef struct JavaVMInitArgs {
+      jint version;
+
+      jint nOptions;
+      JavaVMOption *options;
+      jboolean ignoreUnrecognized;
+  } JavaVMInitArgs;
+
+  The version field must be set to at least JNI_VERSION_1_2. The options field is
+  an array of the following type:
+
+  typedef struct JavaVMOption {
+      char *optionString;  // the option as a string in the default platform encoding
+      void *extraInfo;
+  } JavaVMOption;
+
+  The size of the array is denoted by the nOptions field in JavaVMInitArgs. If
+  ignoreUnrecognized is JNI_TRUE, JNI_CreateJavaVM ignore all unrecognized option
+  strings that begin with "-X" or "_". If ignoreUnrecognized is JNI_FALSE,
+  JNI_CreateJavaVM returns JNI_ERR as soon as it encounters any unrecognized
+  option strings. All Java VMs must recognize the following set of standard options:
+
+  optionString    meaning
+    -D<name>=<value>    Set a system property
+    -verbose[:class|gc|jni] Enable verbose output. The options can be followed
+    by a comma-separated list of names indicating what kind of messages will
+    be printed by the VM. For example, "-verbose:gc,class" instructs the VM
+    to print GC and class loading related messages. Standard names include:
+    gc, class, and jni. All nonstandard (VM-specific) names must begin with "X".
+
+    vfprintf    extraInfo is a pointer to the vfprintf hook.
+    exit    extraInfo is a pointer to the exit hook.
+    abort   extraInfo is a pointer to the abort hook.
+
+  In addition, each VM implementation may support its own set of non-standard option
+  strings. Non-standard option names must begin with "-X" or an underscore ("_").
+  For example, the JDK/JRE supports -Xms and -Xmx options to allow programmers specify
+  the initial and maximum heap size. Options that begin with "-X" are accessible from
+  the "java" command line.
+
+  Here is the example code that creates a Java VM in the JDK/JRE:
+
+    JavaVMInitArgs vm_args;
+    JavaVMOption options[4];
+
+    options[0].optionString = "-Djava.compiler=NONE";           // disable JIT
+    options[1].optionString = "-Djava.class.path=c:\myclasses"; // user classes
+    options[2].optionString = "-Djava.library.path=c:\mylibs";  // set native library path
+    options[3].optionString = "-verbose:jni";                   // print JNI-related messages
+
+    vm_args.version = JNI_VERSION_1_2;
+    vm_args.options = options;
+    vm_args.nOptions = 4;
+    vm_args.ignoreUnrecognized = TRUE;
+
+  Note that in the JDK/JRE, there is no longer any need to call
+    JNI_GetDefaultJavaVMInitArgs.
+
+  res = JNI_CreateJavaVM(&vm, (void **)&env, &vm_args);
+  if (res < 0) ...
+
+  LINKAGE:
+  Exported from the native library that implements the Java virtual machine.
+
+  PARAMETERS:
+    p_vm: pointer to the location where the resulting VM structure will be placed.
+
+    p_env: pointer to the location where the JNI interface pointer for the main thread will be placed.
+
+    vm_args: Java VM initialization arguments.
+
+    RETURNS:
+    Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
+ */
+jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
+
+    JavaVMInitArgs *pArgs = (JavaVMInitArgs *)vm_args;
+    const char *argv[2] = {
+            "./HelloWorld/HelloWorld",
+            "param2"
+    };
+
+    bcmain( 1, argv );
+
+    return JNI_OK;
+}
+
+/**
+ Returns all Java VMs that have been created. Pointers to VMs are written in the buffer vmBuf in the order they are created. At most bufLen number of entries will be written. The total number of created VMs is returned in *nVMs.
+ As of JDK/JRE 1.2, creation of multiple VMs in a single process is not supported.
+
+ LINKAGE:
+ Exported from the native library that implements the Java virtual machine.
+
+ PARAMETERS:
+ vmBuf: pointer to the buffer where the VM structures will be placed.
+
+ bufLen: the length of the buffer.
+
+ nVMs: a pointer to an integer.
+
+ RETURNS:
+ Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
+ */
+jint JNI_GetCreatedJavaVMs(JavaVM** vmBuf, jsize bufLen, jsize* nVMs) {
+    return JNI_OK;
+}
+
+
