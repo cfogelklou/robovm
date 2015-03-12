@@ -62,6 +62,53 @@ static VM* vm = NULL;
 static jint addressClassLookupsCount = 0;
 static AddressClassLookup* addressClassLookups = NULL;
 
+// ----------------------------------------------------------------
+void _TPRINT_CP( const char * const fname, const char * const pc ) {
+    fprintf(stderr, "%s = %s\n", fname, pc);
+}
+#define TPRINT_CP( pc ) _TPRINT_CP( #pc, pc )
+
+// ----------------------------------------------------------------
+void _TPRINT_CPP( char * const fname, char ** const pc, const int n ) {
+    for (int i = 0; i < n; i++) {
+        fprintf(stderr, "%s[%d] = %s\n", fname, i, pc[i]);
+    }
+}
+#define TPRINT_CPP( pc, n ) _TPRINT_CPP( #pc, pc, n )
+
+// ----------------------------------------------------------------
+void _TPRINT_INT( const char * const fname, const int n ) {
+    fprintf(stderr, "%s = %d\n", fname, n);
+}
+#define TPRINT_INT( n ) _TPRINT_INT( #n, n )
+
+// ----------------------------------------------------------------
+void _TPRINT_LONG( const char * const fname, const long n ) {
+    fprintf(stderr, "%s = %ld\n", fname, n);
+}
+#define TPRINT_LONG( n ) _TPRINT_LONG( #n, n )
+
+
+static void bc_options_dbg( Options *pOptions, jboolean printOutputVars ) {
+    TPRINT_CP( pOptions->mainClass );
+    TPRINT_CPP( pOptions->commandLineArgs, pOptions->commandLineArgsCount );
+    TPRINT_INT( pOptions->logLevel );
+    TPRINT_LONG( pOptions->maxHeapSize );
+    TPRINT_LONG( pOptions->initialHeapSize );
+    TPRINT_INT( pOptions->enableGCHeapStats );
+    TPRINT_INT( pOptions->enableHooks );
+    TPRINT_INT( pOptions->waitForResume );
+    TPRINT_INT( pOptions->printPID );
+    TPRINT_CP( pOptions->pidFile );
+    TPRINT_INT( pOptions->printDebugPort );
+    TPRINT_CP( pOptions->debugPortFile );
+    if (printOutputVars) {
+        TPRINT_CP( pOptions->basePath );
+        TPRINT_CP( pOptions->executablePath );
+        //TPRINT_CPP( pOptions->rawBootclasspath, 0 );
+        //TPRINT_CPP( pOptions->rawClasspath, 0 );
+    }
+}
 
 int bcmain(int argc, char* argv[]) {
 
@@ -88,10 +135,15 @@ int bcmain(int argc, char* argv[]) {
         }
     }
 
+    bc_options_dbg( &options, FALSE );
+
     if (!rvmInitOptions(argc, argv, &options, FALSE)) {
         fprintf(stderr, "rvmInitOptions(...) failed!\n");
+        bc_options_dbg( &options, TRUE );
         return 1;
     }
+    fprintf(stderr, "rvmInitOptions(...) succeeded!\n");
+    bc_options_dbg( &options, TRUE );
     Env* env = rvmStartup(&options);
     if (!env) {
         fprintf(stderr, "rvmStartup(...) failed!\n");
@@ -104,7 +156,7 @@ int bcmain(int argc, char* argv[]) {
     return result;
 }
 
-#if 0
+#if 1
 #pragma weak main
 int main(int argc, char* argv[]) {
     bcmain( argc, argv );
@@ -1116,16 +1168,72 @@ jint JNI_GetDefaultJavaVMInitArgs(void* vm_args) {
     RETURNS:
     Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
  */
+static struct JNINativeInterface_ jnienv;
 jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
-
     JavaVMInitArgs *pArgs = (JavaVMInitArgs *)vm_args;
-    const char *argv[2] = {
-            "./HelloWorld/HelloWorld",
-            "param2"
-    };
+    if (NULL != pArgs) {
+        //options.mainClass = pArgs->options[0].
+    }
 
-    bcmain( 1, argv );
+#if 0
+    struct JNIInvokeInterface jniIf = {
+            NULL, // void*       reserved0;
+            NULL, // void*       reserved1;
+            NULL, // void*       reserved2;
 
+            DestroyJavaVM, // jint        (*DestroyJavaVM)(JavaVM*);
+            AttachCurrentThread, // jint        (*AttachCurrentThread)(JavaVM*, JNIEnv**, void*);
+            DetachCurrentThread, // jint        (*DetachCurrentThread)(JavaVM*);
+
+            GetEnv, // jint        (*GetEnv)(JavaVM*, void**, jint);
+
+            AttachCurrentThreadAsDaemon, // jint        (*GetEnv)(JavaVM*, void**, jint);
+        };
+#endif
+
+    options.mainClass = (char*) _bcMainClass;
+    options.rawBootclasspath = _bcBootclasspath;
+    options.rawClasspath = _bcClasspath;
+    options.loadBootClass = loadBootClass;
+    options.loadUserClass = loadUserClass;
+    options.classInitialized = classInitialized;
+    options.loadInterfaces = loadInterfaces;
+    options.loadFields = loadFields;
+    options.loadMethods = loadMethods;
+    options.findClassAt = findClassAt;
+    options.exceptionMatch = exceptionMatch;
+    options.dynamicJNI = _bcDynamicJNI;
+    options.staticLibs = _bcStaticLibs;
+    options.listBootClasses = listBootClasses;
+    options.listUserClasses = listUserClasses;
+
+#if 0
+    {
+        fprintf(stderr, "Chris Fogelklou's Own Build Number SIX took %d params!!!\n", argc);
+        int i;
+        for (i = 0; i < argc; i++) {
+            fprintf(stderr, "p%d = %s\n", i, argv[i]);
+        }
+    }
+
+    if (!rvmInitOptions(argc, argv, &options, FALSE)) {
+        fprintf(stderr, "rvmInitOptions(...) failed!\n");
+        return 1;
+    }
+    Env* env = rvmStartup(&options);
+    if (!env) {
+        fprintf(stderr, "rvmStartup(...) failed!\n");
+        return 1;
+    }
+    vm = env->vm;
+    jint result = rvmRun(env) ? 0 : 1;
+    rvmShutdown(env, result);
+
+    return result;
+#endif
+
+    *p_vm = vm;
+    *p_env = &jnienv;
     return JNI_OK;
 }
 

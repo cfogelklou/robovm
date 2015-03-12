@@ -23,7 +23,7 @@
 			<arguments>
 				<dictionary>
 					<key>LaunchConfigHandle</key>
-					<value>&lt;project&gt;/.externalToolBuilders/build.sh.launch</value>
+					<value>&lt;project&gt;/.externalToolBuilders/BuildHelloWorld.launch</value>
 				</dictionary>
 			</arguments>
 		</buildCommand>

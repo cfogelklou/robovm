@@ -8,7 +8,8 @@ rm -rf classes
 mkdir classes
 javac -d classes/ HelloWorld.java
 robovm -verbose -use-debug-libs -os linux -cp classes/ HelloWorld
-./HelloWorld/HelloWorld
+./HelloWorld/HelloWorld -rvm:log=debug
+
 
 
 
