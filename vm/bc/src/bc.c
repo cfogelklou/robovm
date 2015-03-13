@@ -110,8 +110,7 @@ static void bc_options_dbg( Options *pOptions, jboolean printOutputVars ) {
     }
 }
 
-int bcmain(int argc, char* argv[]) {
-
+static void initOptions() {
     options.mainClass = (char*) _bcMainClass;
     options.rawBootclasspath = _bcBootclasspath;
     options.rawClasspath = _bcClasspath;
@@ -127,6 +126,11 @@ int bcmain(int argc, char* argv[]) {
     options.staticLibs = _bcStaticLibs;
     options.listBootClasses = listBootClasses;
     options.listUserClasses = listUserClasses;
+}
+
+int bcmain(int argc, char* argv[]) {
+
+    initOptions();
     {
         fprintf(stderr, "Chris Fogelklou's Own Build Number SIX took %d params!!!\n", argc);
         int i;
@@ -157,8 +161,8 @@ int bcmain(int argc, char* argv[]) {
 }
 
 #if 1
-#pragma weak main
-int main(int argc, char* argv[]) {
+//__attribute__ ((weak)) main;
+int __attribute__ ((weak)) main(int argc, char* argv[]) {
     bcmain( argc, argv );
 }
 #endif
@@ -1168,72 +1172,72 @@ jint JNI_GetDefaultJavaVMInitArgs(void* vm_args) {
     RETURNS:
     Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
  */
-static struct JNINativeInterface_ jnienv;
+#include <unistd.h>
+char *get_selfpath(char * const buf, const int maxlen) {
+#if 1
+    size_t len = readlink("/proc/self/exe", buf, maxlen-1);
+    if (len != -1) {
+        buf[len] = '\0';
+        return buf;
+    } else {
+        return NULL;
+    }
+#else
+    //Mac OS X: _NSGetExecutablePath() (man 3 dyld)
+    //Linux: readlink /proc/self/exe
+    //Solaris: getexecname()
+    //FreeBSD: sysctl CTL_KERN KERN_PROC KERN_PROC_PATHNAME -1
+    //FreeBSD if it has procfs: readlink /proc/curproc/file (FreeBSD doesn't have procfs by default)
+    //NetBSD: readlink /proc/curproc/exe
+    //DragonFly BSD: readlink /proc/curproc/file
+    //Windows: GetModuleFileName() with hModule = NULL
+#endif
+}
+
+
 jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
+
+    initOptions();
+
     JavaVMInitArgs *pArgs = (JavaVMInitArgs *)vm_args;
     if (NULL != pArgs) {
-        //options.mainClass = pArgs->options[0].
+        // TODO: do something with the options passed in here.
     }
 
-#if 0
-    struct JNIInvokeInterface jniIf = {
-            NULL, // void*       reserved0;
-            NULL, // void*       reserved1;
-            NULL, // void*       reserved2;
-
-            DestroyJavaVM, // jint        (*DestroyJavaVM)(JavaVM*);
-            AttachCurrentThread, // jint        (*AttachCurrentThread)(JavaVM*, JNIEnv**, void*);
-            DetachCurrentThread, // jint        (*DetachCurrentThread)(JavaVM*);
-
-            GetEnv, // jint        (*GetEnv)(JavaVM*, void**, jint);
-
-            AttachCurrentThreadAsDaemon, // jint        (*GetEnv)(JavaVM*, void**, jint);
-        };
-#endif
-
-    options.mainClass = (char*) _bcMainClass;
-    options.rawBootclasspath = _bcBootclasspath;
-    options.rawClasspath = _bcClasspath;
-    options.loadBootClass = loadBootClass;
-    options.loadUserClass = loadUserClass;
-    options.classInitialized = classInitialized;
-    options.loadInterfaces = loadInterfaces;
-    options.loadFields = loadFields;
-    options.loadMethods = loadMethods;
-    options.findClassAt = findClassAt;
-    options.exceptionMatch = exceptionMatch;
-    options.dynamicJNI = _bcDynamicJNI;
-    options.staticLibs = _bcStaticLibs;
-    options.listBootClasses = listBootClasses;
-    options.listUserClasses = listUserClasses;
-
-#if 0
     {
-        fprintf(stderr, "Chris Fogelklou's Own Build Number SIX took %d params!!!\n", argc);
-        int i;
-        for (i = 0; i < argc; i++) {
-            fprintf(stderr, "p%d = %s\n", i, argv[i]);
+        // Fake argc & argv
+        // TODO: Do with real code that maps natively, rather than adding faked argc, argv.
+        int argc = 1;
+        char path[1024];
+        char *path2 = get_selfpath(path, sizeof(path));
+        fprintf(stderr, "Chris Fogelklou's Own Build Number FACE took %d params!!!\n", argc);
+
+        if (!rvmInitOptions(argc, &path2, &options, FALSE)) {
+            fprintf(stderr, "rvmInitOptions(...) failed!\n");
+            return 1;
         }
     }
 
-    if (!rvmInitOptions(argc, argv, &options, FALSE)) {
-        fprintf(stderr, "rvmInitOptions(...) failed!\n");
-        return 1;
-    }
+    // Start up robovm (JNI)
     Env* env = rvmStartup(&options);
     if (!env) {
         fprintf(stderr, "rvmStartup(...) failed!\n");
         return 1;
     }
+
     vm = env->vm;
-    jint result = rvmRun(env) ? 0 : 1;
-    rvmShutdown(env, result);
 
-    return result;
-#endif
+    // TODO Remove!
+    rvmRunBegin(env);// ? 0 : 1;
 
-    *p_vm = vm;
-    *p_env = &jnienv;
+    // Return values.
+    if (p_vm) {
+        *p_vm = &vm->javaVM;
+    }
+    if (p_env) {
+        *p_env = &env->jni;
+    }
+
     return JNI_OK;
 }
 
@@ -1255,6 +1259,17 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
  Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
  */
 jint JNI_GetCreatedJavaVMs(JavaVM** vmBuf, jsize bufLen, jsize* nVMs) {
+    int numVms = (vm) ? 1 : 0;
+    numVms = ( bufLen < 1 ) ? bufLen : 1;
+    if ((NULL == vmBuf) || (NULL == vm)){
+        return JNI_ERR;
+    }
+    if (bufLen >= 1) {
+        *vmBuf = &vm->javaVM;
+    }
+    if (NULL != nVMs) {
+        *nVMs = numVms;
+    }
     return JNI_OK;
 }
 

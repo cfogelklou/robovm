@@ -5,10 +5,11 @@
 #include "MurmurHash3.h"
 #include "classinfo.h"
 #include <jni.h>       /* where everything is defined */
+#include <jni_types.h>
 
 int main(int argc, char *argv[]) {
     jint res;
-    JavaVM *vm = NULL;
+    JavaVM *jvm = NULL;
     JNIEnv *env;       /* pointer to native method interface */
     {
         JavaVMInitArgs vm_args;
@@ -28,7 +29,19 @@ int main(int argc, char *argv[]) {
          * JNI_GetDefaultJavaVMInitArgs.
          */
         fprintf(stderr, "Creating JNI via JNI_CreateJavaVM()");
-        res = JNI_CreateJavaVM(&vm, &env, &vm_args);
+        res = JNI_CreateJavaVM(&jvm, &env, &vm_args);
+
+        assert( JNI_OK == res );
+
+        /* invoke the Main.test method using the JNI */
+        //jclass cls = env->FindClass("Main");
+        jclass cls = (*env)->FindClass(env, "HelloWorld");
+        //jmethodID mid = env->GetStaticMethodID(cls, "test", "(I)V");
+        jmethodID mid = (*env)->GetStaticMethodID(env, cls, "main", "([Ljava/lang/String;)V");
+        //env->CallStaticVoidMethod(cls, mid, 100);
+        (*env)->CallStaticVoidMethod(env, cls, mid, NULL);
+        /* We are done. */
+        (*jvm)->DestroyJavaVM( jvm );
     }
 
 }
