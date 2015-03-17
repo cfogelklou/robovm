@@ -95,6 +95,8 @@ Class* array_J;
 Class* array_F;
 Class* array_D;
 
+extern ClassLoader* systemClassLoader;
+
 static Field FIELDS_NOT_LOADED = {0};
 static Method METHODS_NOT_LOADED = {0};
 static Interface INTERFACES_NOT_LOADED = {0};
@@ -756,7 +758,7 @@ Class* rvmFindClass(Env* env, const char* className) {
     if (NULL == method) {
         DEBUG("About to use system class loader...");
     }
-    ClassLoader* classLoader = method ? method->clazz->classLoader : rvmGetSystemClassLoader(env);
+    ClassLoader* classLoader = method ? method->clazz->classLoader : systemClassLoader;
 #endif
     return rvmFindClassUsingLoader(env, className, classLoader);
 }
