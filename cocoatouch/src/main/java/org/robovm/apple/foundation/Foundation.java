@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Trillian Mobile AB
+ * Copyright (C) 2013-2015 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.uikit.*;
 import org.robovm.apple.coreanimation.*;
+import org.robovm.apple.coredata.*;
 import org.robovm.apple.coregraphics.*;
 import org.robovm.apple.coremedia.*;
 import org.robovm.apple.security.*;
@@ -39,7 +40,7 @@ import org.robovm.apple.dispatch.*;
 /*</javadoc>*/
 /*<annotations>*/@Library("Foundation") @Marshaler(NSString.AsStringMarshaler.class)/*</annotations>*/
 /*<visibility>*/public/*</visibility>*/ class /*<name>*/Foundation/*</name>*/ 
-    extends /*<extends>*/Object/*</extends>*/ 
+    extends /*<extends>*/CocoaUtility/*</extends>*/ 
     /*<implements>*//*</implements>*/ {
 
     /*<ptr>*/
@@ -182,7 +183,5 @@ import org.robovm.apple.dispatch.*;
     }
     
     /*<methods>*/
-    @GlobalValue(symbol="NSFoundationVersionNumber", optional=true)
-    public static native double getFoundationVersionNumber();
     /*</methods>*/
 }

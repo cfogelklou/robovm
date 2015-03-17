@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Trillian Mobile AB
+ * Copyright (C) 2013-2015 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -229,7 +229,7 @@ import org.robovm.apple.dispatch.*;
      * @since Available in iOS 6.0 and later.
      */
     @Method(selector = "decodeObjectOfClass:forKey:")
-    public native NSObject decodeObject(Class<?> aClass, String key);
+    public native NSObject decodeObject(Class<? extends NSObject> aClass, String key);
     /**
      * @since Available in iOS 6.0 and later.
      */

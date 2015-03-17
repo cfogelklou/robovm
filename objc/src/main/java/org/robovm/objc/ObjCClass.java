@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Trillian Mobile AB
+ * Copyright (C) 2012 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -294,14 +294,9 @@ public final class ObjCClass extends ObjCObject {
                 throw new ObjCClassNotFoundException("Failed to add method " + selName + " to custom Objective-C class for Java class: " + type);
             }
         }
-        ObjCRuntime.objc_registerClassPair(handle);
-        
-        ObjCClass objcClass = new ObjCClass(handle, type, name, true);
-        if (objcClass.custom) {
-            ObjCObject.ObjectOwnershipHelper.registerClass(objcClass);
-        }
-        
-        return objcClass;
+        ObjCObject.ObjectOwnershipHelper.registerClass(handle);
+        ObjCRuntime.objc_registerClassPair(handle);                                  
+        return new ObjCClass(handle, type, name, true);
     }
     
     private static Map<String, Method> getCallbacks(Class<?> type) {

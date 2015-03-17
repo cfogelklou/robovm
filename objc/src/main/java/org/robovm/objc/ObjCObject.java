@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Trillian Mobile AB
+ * Copyright (C) 2012 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,8 @@ import org.robovm.rt.bro.ptr.VoidPtr;
     @Marshaler(ObjCClass.Marshaler.class)
 })
 public abstract class ObjCObject extends NativeObject {
+    
+    private static volatile boolean logRetainRelease = false;
 
     public static class ObjCObjectPtr extends Ptr<ObjCObject, ObjCObjectPtr> {}
 
@@ -254,6 +256,11 @@ public abstract class ObjCObject extends NativeObject {
         if (cls == ObjCClass.class) {
             return (T) ObjCClass.toObjCClass(handle);
         }
+        
+        if (!forceType) {
+            ObjCClass objCClass = ObjCClass.getFromObject(handle);
+            forceType = !cls.isAssignableFrom(objCClass.getType()) && !ObjCClass.isObjCProxy(cls);
+        }
 
         synchronized (objcBridgeLock) {
             T o = getPeerObject(handle);
@@ -324,7 +331,7 @@ public abstract class ObjCObject extends NativeObject {
 
     static class ObjectOwnershipHelper {
         private static final LongMap<Object> CUSTOM_OBJECTS = new LongMap<>();
-
+        
         private static final long retainCount = Selector.register("retainCount").getHandle();
         private static final long retain = Selector.register("retain").getHandle();
         private static final long originalRetain = Selector.register("original_retain").getHandle();
@@ -334,18 +341,20 @@ public abstract class ObjCObject extends NativeObject {
         private static final Method retainMethod;
         private static final Method releaseMethod;
 
+        private static final LongMap<Long> customClassToNativeSuper = new LongMap<>();
+
         static {
             try {
-                retainMethod = ObjectOwnershipHelper.class.getDeclaredMethod("retain", ObjCObject.class, Long.TYPE);
+                retainMethod = ObjectOwnershipHelper.class.getDeclaredMethod("retain", Long.TYPE, Long.TYPE);
                 releaseMethod = ObjectOwnershipHelper.class.getDeclaredMethod("release", Long.TYPE, Long.TYPE);
             } catch (Throwable t) {
                 throw new Error(t);
             }
         }
 
-        public static void registerClass(ObjCClass objCClass) {
-            registerCallbackMethod(objCClass.getHandle(), retain, originalRetain, retainMethod);
-            registerCallbackMethod(objCClass.getHandle(), release, originalRelease, releaseMethod);
+        public static void registerClass(long cls) {
+            registerCallbackMethod(cls, retain, originalRetain, retainMethod);
+            registerCallbackMethod(cls, release, originalRelease, releaseMethod);
         }
 
         private static void registerCallbackMethod(long cls, long selector, long newSelector, Method method) {
@@ -356,40 +365,77 @@ public abstract class ObjCObject extends NativeObject {
                 throw new Error(
                         "Failed to register callback method on the ObjectOwnershipHelper: class_addMethod(...) failed");
             }
-            ObjCRuntime.class_replaceMethod(cls, newSelector, ObjCRuntime.method_getImplementation(superMethod),
-                    typeEncoding);
+
+            // find the super class that is a native class and cache it
+            long superClass = ObjCRuntime.class_getSuperclass(cls);
+            long nativeSuper = 0;
+            while (superClass != 0) {
+                ObjCClass objCClass = ObjCClass.toObjCClass(superClass);
+                if (!objCClass.isCustom()) {
+                    nativeSuper = superClass;
+                    break;
+                }
+                superClass = ObjCRuntime.class_getSuperclass(superClass);
+            }
+            if (nativeSuper == 0) {
+                throw new Error("Couldn't find native super class for "
+                        + VM.newStringUTF(ObjCRuntime.class_getName(cls)));
+            }
+            synchronized (customClassToNativeSuper) {
+                customClassToNativeSuper.put(cls, nativeSuper);
+            }
         }
 
         @Callback
-        private static @Pointer long retain(ObjCObject self, @Pointer long sel) {
-            if (ObjCRuntime.int_objc_msgSend(self.getHandle(), retainCount) <= 1) {
+        private static @Pointer long retain(@Pointer long self, @Pointer long sel) {
+            int count = ObjCRuntime.int_objc_msgSend(self, retainCount);
+            if (count <= 1) {
                 synchronized (CUSTOM_OBJECTS) {
-                    CUSTOM_OBJECTS.put(self.getHandle(), self);
+                    ObjCClass cls = ObjCClass.toObjCClass(ObjCRuntime.object_getClass(self));
+                    ObjCObject obj = ObjCObject.toObjCObject(cls.getType(), self, 0);
+                    CUSTOM_OBJECTS.put(self, obj);
                 }
             }
-            return ObjCRuntime.ptr_objc_msgSendSuper(new Super(self.getHandle(), NS_OBJECT_CLASS).getHandle(), sel);
+            long cls = ObjCRuntime.object_getClass(self);
+            if (logRetainRelease)
+                logRetainRelease(cls, self, count, true);
+            long nativeSuper = 0;
+            synchronized (customClassToNativeSuper) {
+                nativeSuper = customClassToNativeSuper.get(cls);
+            }
+            Super sup = new Super(self, nativeSuper);
+            return ObjCRuntime.ptr_objc_msgSendSuper(sup.getHandle(), sel);
         }
 
         @Callback
         private static void release(@Pointer long self, @Pointer long sel) {
-            if (ObjCRuntime.int_objc_msgSend(self, retainCount) == 1) {
+            int count = ObjCRuntime.int_objc_msgSend(self, retainCount);
+            if (count <= 2) {
                 synchronized (CUSTOM_OBJECTS) {
                     CUSTOM_OBJECTS.remove(self);
                 }
             }
-            ObjCRuntime.void_objc_msgSendSuper(new Super(self, NS_OBJECT_CLASS).getHandle(), sel);
+            long cls = ObjCRuntime.object_getClass(self);
+            if (logRetainRelease)
+                logRetainRelease(cls, self, count, false);
+            long nativeSuper = 0;
+            synchronized (customClassToNativeSuper) {
+                nativeSuper = customClassToNativeSuper.get(cls);
+            }
+            Super sup = new Super(self, nativeSuper);
+            ObjCRuntime.void_objc_msgSendSuper(sup.getHandle(), sel);
         }
-        
+
         public static boolean isObjectRetained(ObjCObject object) {
             synchronized (CUSTOM_OBJECTS) {
                 return CUSTOM_OBJECTS.containsKey(object.getHandle());
             }
-        }
+        }        
     }
 
     static class AssociatedObjectHelper {
         private static final String STRONG_REFS_KEY = AssociatedObjectHelper.class.getName() + ".StrongRefs";
-
+        
         private static final int OBJC_ASSOCIATION_RETAIN_NONATOMIC = 1;
         private static final long RELEASE_LISTENER_CLASS;
         private static final String OWNER_IVAR_NAME = "value";
@@ -522,11 +568,16 @@ public abstract class ObjCObject extends NativeObject {
 
         @Callback
         static void release(@Pointer long self, @Pointer long sel) {
-            if (ObjCRuntime.int_objc_msgSend(self, retainCount.getHandle()) == 1) {
+            int count = ObjCRuntime.int_objc_msgSend(self, retainCount.getHandle());
+            if (count == 1) {
                 long owner = VM.getPointer(self + OWNER_IVAR_OFFSET);
                 synchronized (ASSOCIATED_OBJECTS) {
                     ASSOCIATED_OBJECTS.remove(owner);
                 }
+            }
+            if(logRetainRelease) {
+                long cls = ObjCRuntime.object_getClass(self);
+                logRetainRelease(cls, self, count, false);
             }
             ObjCRuntime.void_objc_msgSendSuper(new Super(self, NS_OBJECT_CLASS).getHandle(), sel);
         }
@@ -550,5 +601,26 @@ public abstract class ObjCObject extends NativeObject {
 
         @StructMember(1)
         public native Super objCClass(@Pointer long objCClass);
+    }
+    
+    /**
+     * Sets whether retain/release of custom {@link ObjCObject} should be logged
+     * to the console to identify retain/release leaks. Note that the GC has to
+     * be able to collect the custom object for the final release to be
+     * triggered.</p>
+     * 
+     * The output logs the class, memory address and retain count after the
+     * release/retain invocation. You can use the memory address to inspect
+     * custom objects in Instruments.
+     */
+    public static void logRetainRelease(boolean enabled) {
+        logRetainRelease = enabled;
+    }
+    
+    private static void logRetainRelease(long cls, long self, int count, boolean isRetain) {
+        String className = ObjCClass.getFromObject(cls).getType().getName();
+        System.err.println(String.format("[Debug] %s %s@0x%s, retain count: %d",
+                isRetain ? "Retained" : "Released", className, Long.toHexString(self), isRetain ? count + 1
+                        : count - 1));
     }
 }

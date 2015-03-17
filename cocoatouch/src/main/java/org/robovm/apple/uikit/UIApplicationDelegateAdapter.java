@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Trillian Mobile AB
+ * Copyright (C) 2013-2015 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ import org.robovm.apple.corelocation.*;
     extends /*<extends>*/NSObject/*</extends>*/ 
     /*<implements>*/implements UIApplicationDelegate/*</implements>*/ {
 
+    private UIWindow window;
+
     /*<ptr>*/
     /*</ptr>*/
     /*<bind>*/
@@ -49,18 +51,32 @@ import org.robovm.apple.corelocation.*;
     /*<constants>*//*</constants>*/
     /*<constructors>*//*</constructors>*/
     /*<properties>*/
-    /**
-     * @since Available in iOS 5.0 and later.
-     */
-    @NotImplemented("window")
-    public UIWindow getWindow() { throw new UnsupportedOperationException(); }
-    /**
-     * @since Available in iOS 5.0 and later.
-     */
-    @NotImplemented("setWindow:")
-    public void setWindow(UIWindow v) { throw new UnsupportedOperationException(); }
+    
     /*</properties>*/
     /*<members>*//*</members>*/
+    
+    /**
+     * @since Available in iOS 5.0 and later.
+     */
+    @Override
+    public UIWindow getWindow() { 
+        return window;
+    }
+    /**
+     * @since Available in iOS 5.0 and later.
+     */
+    @Override
+    public void setWindow(UIWindow window) {
+        this.window = window;
+    }
+    
+    @Override
+    public void didReceiveMemoryWarning(UIApplication application) {
+        for (int i = 0; i < 10; i++) {
+            System.gc();
+        }
+    }
+    
     /*<methods>*/
     @NotImplemented("applicationDidFinishLaunching:")
     public void didFinishLaunching(UIApplication application) { throw new UnsupportedOperationException(); }
@@ -85,8 +101,6 @@ import org.robovm.apple.corelocation.*;
      */
     @NotImplemented("application:openURL:sourceApplication:annotation:")
     public boolean openURL(UIApplication application, NSURL url, String sourceApplication, NSPropertyList annotation) { throw new UnsupportedOperationException(); }
-    @NotImplemented("applicationDidReceiveMemoryWarning:")
-    public void didReceiveMemoryWarning(UIApplication application) { throw new UnsupportedOperationException(); }
     @NotImplemented("applicationWillTerminate:")
     public void willTerminate(UIApplication application) { throw new UnsupportedOperationException(); }
     @NotImplemented("applicationSignificantTimeChange:")
@@ -149,6 +163,11 @@ import org.robovm.apple.corelocation.*;
      */
     @NotImplemented("application:handleEventsForBackgroundURLSession:completionHandler:")
     public void handleEventsForBackgroundURLSession(UIApplication application, String identifier, @Block Runnable completionHandler) { throw new UnsupportedOperationException(); }
+    /**
+     * @since Available in iOS 8.2 and later.
+     */
+    @NotImplemented("application:handleWatchKitExtensionRequest:reply:")
+    public void handleWatchKitExtensionRequest(UIApplication application, NSDictionary<?, ?> userInfo, @Block VoidBlock1<NSDictionary<?, ?>> reply) { throw new UnsupportedOperationException(); }
     /**
      * @since Available in iOS 4.0 and later.
      */

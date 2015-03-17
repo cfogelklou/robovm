@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Trillian Mobile AB
+ * Copyright (C) 2013-2015 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ import org.robovm.apple.corebluetooth.*;
                 return null;
             }
             List<CLErrorUserInfoKey> list = new ArrayList<>();
-            for (int i = 0, n = o.size(); i < n; i++) {
+            for (int i = 0; i < o.size(); i++) {
                 list.add(CLErrorUserInfoKey.valueOf(o.get(i)));
             }
             return list;

@@ -926,9 +926,14 @@ classes:
                 name: getNumberOfSections
             '-registerClass:forCellWithReuseIdentifier:':
                 name: registerReusableCellClass
+                parameters:
+                    cellClass:
+                        type: 'Class<? extends UICollectionViewCell>'
             '-registerClass:forSupplementaryViewOfKind:withReuseIdentifier:':
                 name: registerReusableSupplementaryViewClass
                 parameters:
+                    viewClass:
+                        type: 'Class<? extends UICollectionReusableView>'
                     elementKind:
                         type: UICollectionElementKind
             '-registerNib:forCellWithReuseIdentifier:':
@@ -987,8 +992,10 @@ classes:
         methods:
             '+layoutAttributesClass':
                 property: true
+                return_type: 'Class<? extends UICollectionViewLayoutAttributes>'
             '+invalidationContextClass':
                 property: true
+                return_type: 'Class<? extends UICollectionViewLayoutInvalidationContext>'
             '-collectionViewContentSize':
                 name: getCollectionViewContentSize
             '-finalLayoutAttributesForDisappearingDecorationElementOfKind:atIndexPath:':
@@ -1014,6 +1021,9 @@ classes:
                 name: getLayoutAttributesForSupplementaryView
             '-registerClass:forDecorationViewOfKind:':
                 name: registerDecorationViewClass
+                parameters:
+                    viewClass:
+                        type: 'Class<? extends UICollectionReusableView>'
             '-registerNib:forDecorationViewOfKind:':
                 name: registerDecorationViewNib
             '-targetContentOffsetForProposedContentOffset:withScrollingVelocity:':
@@ -1389,6 +1399,8 @@ classes:
                 name: getSmallSystemFontSize
             '+systemFontOfSize:':
                 name: getSystemFont
+            '+systemFontOfSize:weight:':
+                name: getSystemFont
             '+systemFontSize':
                 name: getSystemFontSize
             '+fontWithName:size:':
@@ -1735,6 +1747,13 @@ classes:
             'viewControllers':
                 type: NSArray<UIViewController>
         methods:
+            '-initWithNavigationBarClass:toolbarClass:':
+                name: init
+                parameters:
+                    navigationBarClass:
+                        type: 'Class<? extends UINavigationBar>'
+                    toolbarClass:
+                        type: 'Class<? extends UIToolbar>'
             '-init.*':
                 name: init
             '-pushViewController:animated:':
@@ -1923,6 +1942,8 @@ classes:
         properties:
             'passthroughViews':
                 type: NSArray<UIView>
+            'popoverBackgroundViewClass':
+                type: 'Class<? extends UIPopoverBackgroundView>'
         methods:
             '-init.*':
                 name: init
@@ -1942,6 +1963,8 @@ classes:
                 name: popoverPresentationDelegate
             'passthroughViews':
                 type: NSArray<UIView>
+            'popoverBackgroundViewClass':
+                type: 'Class<? extends UIPopoverBackgroundView>'
     UIPresentationController: # DONE
         methods:
             '-init.*':
@@ -2459,6 +2482,9 @@ classes:
                 name: registerReusableCellNib
             '-registerClass:forCellReuseIdentifier:':
                 name: registerReusableCellClass
+                parameters:
+                    cellClass:
+                        type: 'Class<? extends UITableViewCell>'
             '-reloadRowsAtIndexPaths:withRowAnimation:':
                 name: reloadRows
                 parameters:
@@ -2475,6 +2501,9 @@ classes:
                 return_type: NSArray<UITableViewCell>
             '-registerClass:forHeaderFooterViewReuseIdentifier:':
                 name: registerReusableHeaderFooterViewClass
+                parameters:
+                    aClass:
+                        type: 'Class<? extends UITableViewHeaderFooterView>'
             '-registerNib:forHeaderFooterViewReuseIdentifier:':
                 name: registerReusableHeaderFooterViewNib
             '-footerViewForSection:':
@@ -2712,6 +2741,7 @@ classes:
                 name: transition
             '+layerClass':
                 name: getLayerClass
+                return_type: 'Class<? extends CALayer>'
             '+performSystemAnimation:onViews:options:animations:completion:':
                 trim_after_first_colon: true
                 parameters:
@@ -3086,6 +3116,9 @@ protocols:
     UIAppearanceContainer: # DONE
         skip_adapter: true
     UIApplicationDelegate: # DONE
+        properties:
+            'window':
+                skip_adapter: true
         methods:
             '-application:didChangeStatusBarFrame:':
                 name: didChangStatusBarFrame
@@ -3126,6 +3159,7 @@ protocols:
                 name: didEnterBackground
             '-applicationDidReceiveMemoryWarning:':
                 name: didReceiveMemoryWarning
+                skip_adapter: true
             '-applicationProtectedDataDidBecomeAvailable:':
                 name: protectedDataDidBecomeAvailable
             '-applicationProtectedDataWillBecomeUnavailable:':
@@ -3192,6 +3226,11 @@ protocols:
                 name: didFailToContinueUserActivity
             '-application:didUpdateUserActivity:':
                 name: didUpdateUserActivity
+            '-application:handleWatchKitExtensionRequest:reply:':
+                name: handleWatchKitExtensionRequest
+                parameters:
+                    reply:
+                        type: '@Block VoidBlock1<NSDictionary<?, ?>>'
     UIBarPositioning: {} # DONE
     UIBarPositioningDelegate: # DONE
         methods:
@@ -4391,6 +4430,9 @@ values:
         name: '#{g[0]}'
         type: NSString
         visibility: protected
+    UIFontWeight(.*):
+        enum: UIFontWeight
+        name: '#{g[0]}'
 
     # UIImagePickerController
     UIImagePickerController(.*):

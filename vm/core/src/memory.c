@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Trillian Mobile AB
+ * Copyright (C) 2012 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -545,7 +545,7 @@ static inline void* gcAllocateObject(size_t size, void* clazz) {
     }
     return m;
 }
-static inline void* gcAllocateUncollectable(size_t size) {
+void* gcAllocateUncollectable(size_t size) {
     void* m = GC_MALLOC_UNCOLLECTABLE(size);
     if (!m) {
         // Force GC and try again
@@ -577,6 +577,10 @@ static inline void* gcAllocateAtomicUncollectable(size_t size) {
         memset(m, 0, size);
     }
     return m;
+}
+
+void gcFree(void* ptr) {
+    GC_free(ptr);
 }
 
 /*

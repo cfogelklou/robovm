@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Trillian Mobile AB
+ * Copyright (C) 2012 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -243,7 +243,7 @@ VM* rvmCreateVM(Options* options) {
 }
 
 Env* rvmCreateEnv(VM* vm) {
-    Env* env = gcAllocate(vm->options->enableHooks ? sizeof(DebugEnv) : sizeof(Env));
+    Env* env = gcAllocateUncollectable(vm->options->enableHooks ? sizeof(DebugEnv) : sizeof(Env));
     if (!env) return NULL;
     env->vm = vm;
     if(vm->options->enableHooks) {

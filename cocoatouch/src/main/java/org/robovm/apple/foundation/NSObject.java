@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2015 Trillian Mobile AB
+ * Copyright (C) 2013-2015 RoboVM AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,7 +126,7 @@ import org.robovm.apple.dispatch.*;
     /*</constructors>*/
     /*<properties>*/
     @Property(selector = "classForCoder")
-    public native Class<?> getClassForCoder();
+    public native Class<? extends NSObject> getClassForCoder();
     /**
      * @since Available in iOS 4.0 and later.
      */
@@ -137,7 +137,7 @@ import org.robovm.apple.dispatch.*;
     @Property(selector = "setObservationInfo:")
     public native void setObservationInfo(VoidPtr v);
     @Property(selector = "classForKeyedArchiver")
-    public native Class<?> getClassForKeyedArchiver();
+    public native Class<? extends NSObject> getClassForKeyedArchiver();
     /*</properties>*/
     /*<members>*//*</members>*/
     
@@ -232,6 +232,8 @@ import org.robovm.apple.dispatch.*;
     public native boolean conformsToProtocol(ObjCProtocol aProtocol);
     @Method(selector = "respondsToSelector:")
     public native boolean respondsToSelector(Selector aSelector);
+    @Method(selector = "init")
+    private native @Pointer long init();
     @Method(selector = "retain")
     public final native NSObject retain();
     @Method(selector = "release")
@@ -389,8 +391,6 @@ import org.robovm.apple.dispatch.*;
         didChangeValues(changeKind, indexes, key);
     }
     /*<methods>*/
-    @Method(selector = "init")
-    private native @Pointer long init();
     @Method(selector = "copy")
     public native NSObject copy();
     @Method(selector = "mutableCopy")
