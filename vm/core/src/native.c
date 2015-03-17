@@ -19,6 +19,9 @@
 extern struct JNINativeInterface_ jni;
 extern struct JNIInvokeInterface_ javaVM;
 
+// TODO chfo: Added this LOG_TAG.
+#define LOG_TAG "native.c"
+
 void rvmInitJavaVM(VM* vm) {
     vm->javaVM = &javaVM;
 }
@@ -82,15 +85,10 @@ static jclass DefineClass(JNIEnv* env, const char* name, jobject loader, const j
 
 static jclass FindClass(JNIEnv* env, const char* name) {
 
+    DEBUGF("FindClass(0x%x, %s)", env, name);
     Class* clazz = rvmFindClass((Env*) env, (char*) name);
     if (!clazz) {
-        Env * myEnv = env;
-        Options* options = myEnv->vm->options;
-        //Class* clazz = rvmFindClassUsingLoader((Env*) env, (char*) name, systemClassLoader);
-        Class* clazz = rvmFindClassUsingLoader((Env*) env, options->mainClass, systemClassLoader);
-        if (!clazz) {
-            return NULL;
-        }
+        return NULL;
     }
     if (((Env*) env)->vm->initialized) {
         rvmInitialize((Env*) env, clazz);

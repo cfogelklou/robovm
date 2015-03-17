@@ -35,6 +35,7 @@ static Class* java_lang_StackTraceElement = NULL;
 static Method* java_lang_StackTraceElement_constructor = NULL;
 static ObjectArray* empty_java_lang_StackTraceElement_array = NULL;
 
+#define CHFO_DEBUGF DEBUGF
 
 // A shared CallStack struct used by rvmCaptureCallStackForThread() that can store at most MAX_CALL_STACK_LENGTH 
 // frames. dumpThreadStackTrace() assumes MAX_CALL_STACK_LENGTH.
@@ -58,12 +59,20 @@ static inline void releaseThreadStackTraceLock() {
 
 static Method* findMethod(Env* env, Class* clazz, const char* name, const char* desc) {
     Method* method = rvmGetMethods(env, clazz);
-    if (rvmExceptionCheck(env)) return NULL;
+    if (rvmExceptionCheck(env)) {
+        CHFO_DEBUGF("    findMethod(0x%x):Exception generated! %s:%s.", env, name, desc);
+        return NULL;
+    }
     for (; method != NULL; method = method->next) {
         if (!strcmp(method->name, name) && !strcmp(method->desc, desc)) {
+            CHFO_DEBUGF("    findMethod(0x%x):Yepp, %s:%s == %s:%s\n", env, name, desc, method->name, method->desc);
             return method;
         }
+        else {
+            CHFO_DEBUGF("    findMethod(0x%x):Nope, %s:%s != %s:%s\n", env, name, desc, method->name, method->desc);
+        }
     }
+    CHFO_DEBUGF("    findMethod(0x%x):Finished with failure.", env);
     return NULL;
 }
 
@@ -74,7 +83,11 @@ static Method* getMethod(Env* env, Class* clazz, const char* name, const char* d
     }
 
     Class* c = clazz;
+    if (c) {
+        CHFO_DEBUGF("getting method %s for class %s\n", c->name, name);
+    }
     for (c = clazz; c != NULL; c = c->superclass) {
+        CHFO_DEBUGF("  trying in class/superclass %s\n", c->name);
         Method* method = findMethod(env, c, name, desc);
         if (rvmExceptionCheck(env)) return NULL;
         if (method) return method;

@@ -750,7 +750,14 @@ jboolean rvmInitPrimitiveWrapperClasses(Env* env) {
 Class* rvmFindClass(Env* env, const char* className) {
     Method* method = rvmGetCallingMethod(env);
     if (rvmExceptionOccurred(env)) return NULL;
+#if 0
     ClassLoader* classLoader = method ? method->clazz->classLoader : NULL;
+#else
+    if (NULL == method) {
+        DEBUG("About to use system class loader...");
+    }
+    ClassLoader* classLoader = method ? method->clazz->classLoader : rvmGetSystemClassLoader(env);
+#endif
     return rvmFindClassUsingLoader(env, className, classLoader);
 }
 

@@ -1207,12 +1207,14 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
     {
         // Fake argc & argv
         // TODO: Do with real code that maps natively, rather than adding faked argc, argv.
-        int argc = 1;
+        int argc = 2;
         char path[1024];
-        char *path2 = get_selfpath(path, sizeof(path));
+        char *argv1 = get_selfpath(path, sizeof(path));
+        char *argv2 = "-rvm:log=debug";
+        char *argv[3] = {argv1, argv2, NULL};
         fprintf(stderr, "Chris Fogelklou's Own Build Number FACE took %d params!!!\n", argc);
 
-        if (!rvmInitOptions(argc, &path2, &options, FALSE)) {
+        if (!rvmInitOptions(argc, argv, &options, FALSE)) {
             fprintf(stderr, "rvmInitOptions(...) failed!\n");
             return 1;
         }
