@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
         /* Note that in the JDK/JRE, there is no longer any need to call
          * JNI_GetDefaultJavaVMInitArgs.
          */
-        fprintf(stderr, "Creating JNI via JNI_CreateJavaVM()");
+        //fprintf(stderr, "Creating JNI via JNI_CreateJavaVM()");
         res = JNI_CreateJavaVM(&jvm, &env, &vm_args);
 
         assert( JNI_OK == res );

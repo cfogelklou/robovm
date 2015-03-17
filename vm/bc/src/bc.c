@@ -1212,7 +1212,6 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
         char *argv1 = get_selfpath(path, sizeof(path));
         char *argv2 = "-rvm:log=debug";
         char *argv[3] = {argv1, argv2, NULL};
-        fprintf(stderr, "Chris Fogelklou's Own Build Number FACE took %d params!!!\n", argc);
 
         if (!rvmInitOptions(argc, argv, &options, FALSE)) {
             fprintf(stderr, "rvmInitOptions(...) failed!\n");
@@ -1224,13 +1223,13 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
     Env* env = rvmStartup(&options);
     if (!env) {
         fprintf(stderr, "rvmStartup(...) failed!\n");
-        return 1;
+        return JNI_ERR;
     }
 
     vm = env->vm;
 
-    // TODO Remove!
-    rvmRunBegin(env);// ? 0 : 1;
+    // CHFO: TODO Remove!
+    //rvmRunBegin(env);// ? 0 : 1;
 
     // Return values.
     if (p_vm) {

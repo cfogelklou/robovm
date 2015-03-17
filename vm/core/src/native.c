@@ -36,8 +36,17 @@ static void throwUnsupportedOperationException(Env* env, char* msg) {
     rvmThrowNew(env, clazz, msg);
 }
 
+/*
+ * jint DestroyJavaVM(JavaVM *vm);
+ *
+ * Unloads a Java VM and reclaims its resources.
+ * The support for DestroyJavaVM was not complete in JDK/JRE 1.1. As of JDK/JRE 1.1 Only the main thread may call DestroyJavaVM.
+ * Since JDK/JRE 1.2, any thread, whether attached or not, can call this function. If the current thread is attached, the VM waits until the current thread is the only non-daemon user-level Java thread. If the current thread is not attached, the VM attaches the current thread and then waits until the current thread is the only non-daemon user-level thread. The JDK/JRE still does not support VM unloading, however.
+ */
 static jint DestroyJavaVM(JavaVM* vm) {
-    return JNI_ERR;
+    // Call rvmDestroy and send in VM.
+    jboolean rval = rvmDestroy((VM*)vm);
+    return rval ? JNI_OK : JNI_ERR;
 }
 
 static jint AttachCurrentThread(JavaVM* vm, void** penv, void* args) {
@@ -84,8 +93,6 @@ static jclass DefineClass(JNIEnv* env, const char* name, jobject loader, const j
 }
 
 static jclass FindClass(JNIEnv* env, const char* name) {
-
-    DEBUGF("FindClass(0x%x, %s)", env, name);
     Class* clazz = rvmFindClass((Env*) env, (char*) name);
     if (!clazz) {
         return NULL;
