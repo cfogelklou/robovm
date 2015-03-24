@@ -1184,7 +1184,7 @@ jint JNI_GetDefaultJavaVMInitArgs(void* vm_args) {
     Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
  */
 #include <unistd.h>
-char *get_selfpath(char * const buf, const int maxlen) {
+char *getExecutablePath(char * const buf, const int maxlen) {
 #if 1
     size_t len = readlink("/proc/self/exe", buf, maxlen-1);
     if (len != -1) {
@@ -1207,7 +1207,7 @@ char *get_selfpath(char * const buf, const int maxlen) {
 
 
 // Custom parameters are passed in with "-x", "-X", or "_"
-static char * allocRvmCmdsForCustomCmds( const char * const p_cmd_start, const JavaVMOption* const p_opt ) {
+static char * allocRvmCmdsForCustomCmds( const char * const p_cmd_start ) {
     char* prval = NULL;
     if (p_cmd_start == strstr(p_cmd_start, "rvm:" )) {
         // Is a custom RVM command.
@@ -1229,7 +1229,7 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
 
     if (('_' == p_opt->optionString[0])) {
         // Non-standard option names must begin with "-X" or an underscore ("_"). For example, the JDK/JRE supports -Xms and -Xmx options to allow programmers specify the initial and maximum heap size. Options that begin with "-X" are accessible from the "java" command line.
-        p_rval = allocRvmCmdsForCustomCmds(&p_opt->optionString[1], p_opt);
+        p_rval = allocRvmCmdsForCustomCmds(&p_opt->optionString[1]);
     }
     if (('-' == p_opt->optionString[0])) {
         switch (p_opt->optionString[1]) {
@@ -1237,6 +1237,7 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
         case 'D':
             // http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/invocation.html
             // -D<name>=<value>	Set a system property
+            fprintf(stderr, "-D option not supported in RoboVM!\n");
             break;
         case 'x':
         case 'X':
@@ -1245,7 +1246,7 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
             // the JDK/JRE supports -Xms and -Xmx options to allow programmers specify the initial
             // and maximum heap size. Options that begin with "-X" are accessible from the "java"
             // command line.
-            p_rval = allocRvmCmdsForCustomCmds(&p_opt->optionString[2], p_opt);
+            p_rval = allocRvmCmdsForCustomCmds(&p_opt->optionString[2]);
             break;
         case 'v':
             if (&p_opt->optionString[1]
@@ -1256,6 +1257,10 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
                 // by the VM. For example, "-verbose:gc,class" instructs the VM to print GC and
                 // class loading related messages. Standard names include: gc, class, and jni. All
                 // nonstandard (VM-specific) names must begin with "X".
+                fprintf(stderr, "-verbose[:class|gc|jni] option not yet supported!\n");
+
+                // Default to "debug" logging if any verbose logging is enabled.
+                p_rval = allocRvmCmdsForCustomCmds("rvm:log=debug" );
             }
             break;
         default:
@@ -1297,7 +1302,7 @@ static jboolean createMainArgumentsFromVmArgs(const JavaVMInitArgs* const p_vm_a
 
 	// Argv[0] points to the exe path.
 	pp_argv[0] = malloc(sizeof(char) * MAX_PATH);
-	pp_argv[0] = get_selfpath(pp_argv[0], MAX_PATH);
+	pp_argv[0] = getExecutablePath(pp_argv[0], MAX_PATH);
 
 	// Argv[1..n_argc] are converted forms of the options flags.
 	if (p_vm_args) {
@@ -1377,7 +1382,7 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
         // TODO: Do with real code that maps natively, rather than adding faked argc, argv.
         const int argc = 1;
         char path[1024];
-        char *argv1 = get_selfpath(path, sizeof(path));
+        char *argv1 = getExecutablePath(path, sizeof(path));
         char *argv[2] = {argv1, NULL};
 
         if (!rvmInitOptions(argc, argv, &options, FALSE)) {

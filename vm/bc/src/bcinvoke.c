@@ -26,21 +26,20 @@ int main(int argc, char *argv[]) {
         vm_args.nOptions = sizeof(options)/sizeof(options[0]);
         vm_args.ignoreUnrecognized = TRUE;
 
-        /* Note that in the JDK/JRE, there is no longer any need to call
-         * JNI_GetDefaultJavaVMInitArgs.
+        /* Note that in the JDK/JRE, there is no longer any
+         * need to call JNI_GetDefaultJavaVMInitArgs().
          */
-        //fprintf(stderr, "Creating JNI via JNI_CreateJavaVM()");
         res = JNI_CreateJavaVM(&jvm, &env, &vm_args);
 
         assert( JNI_OK == res );
 
         /* invoke the Main.test method using the JNI */
-        //jclass cls = env->FindClass("Main");
         jclass cls = (*env)->FindClass(env, "HelloWorld");
-        //jmethodID mid = env->GetStaticMethodID(cls, "test", "(I)V");
+
         jmethodID mid = (*env)->GetStaticMethodID(env, cls, "main", "([Ljava/lang/String;)V");
-        //env->CallStaticVoidMethod(cls, mid, 100);
+
         (*env)->CallStaticVoidMethod(env, cls, mid, NULL);
+
         /* We are done. */
         (*jvm)->DestroyJavaVM( jvm );
     }
