@@ -1,11 +1,7 @@
 
 #include <robovm.h>
-//#include "uthash.h"
-//#include "utlist.h"
-//#include "MurmurHash3.h"
-//#include "classinfo.h"
-#include <jni.h>       /* where everything is defined */
-#include <jni_types.h>
+//#include <jni.h>       /* where everything is defined */
+//#include <jni_types.h>
 
 int main(int argc, char *argv[]) {
     jint res;
@@ -13,13 +9,28 @@ int main(int argc, char *argv[]) {
     JNIEnv *env;       /* pointer to native method interface */
     {
         JavaVMInitArgs vm_args;
-        JavaVMOption options[5];
-
-        options[0].optionString = "-Djava.compiler=NONE";           /* disable JIT */
-        options[1].optionString = "-Djava.class.path=c:\\myclasses"; /* user classes */
-        options[2].optionString = "-Djava.library.path=c:\\mylibs";  /* set native library path */
-        options[3].optionString = "-xrvm:log=debug";
-        options[4].optionString = "-verbose:jni";                   /* print JNI-related messages */
+        JavaVMOption options[] = {
+            {
+                "-Djava.compiler=NONE",           /* disable JIT */
+                NULL
+            },
+            {
+                "-Djava.class.path=c:\\myclasses", /* user classes */
+                NULL
+            },
+            {
+                "-Djava.library.path=c:\\mylibs",  /* set native library path */
+                NULL
+            },
+            {
+                "-xrvm:log=debug",
+                NULL
+            },
+            {
+                "-verbose:jni",                   /* print JNI-related messages */
+                NULL
+            }
+        };
 
         vm_args.version = JNI_VERSION_1_2;
         vm_args.options = options;
