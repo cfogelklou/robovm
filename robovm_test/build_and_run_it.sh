@@ -1,5 +1,5 @@
 #!/bin/bash
-export ROBOVM_DEV_ROOT=~/Projects/robovm
+export ROBOVM_DEV_ROOT=~/Projects/robovm/robovm
 cd $ROBOVM_DEV_ROOT
 vm/build.sh
 vm/copy-binaries.sh
