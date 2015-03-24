@@ -1206,23 +1206,179 @@ char *get_selfpath(char * const buf, const int maxlen) {
 }
 
 
-jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* vm_args) {
+// Custom parameters are passed in with "-x", "-X", or "_"
+static char * allocRvmCmdsForCustomCmds( const char * const p_cmd_start, const JavaVMOption* const p_opt ) {
+    char* prval = NULL;
+    if (p_cmd_start == strstr(p_cmd_start, "rvm:" )) {
+        // Is a custom RVM command.
+        const int prmLen = strlen( p_cmd_start );
+        prval = malloc(sizeof(char) * (prmLen+2));
+        prval[0] = '-';
+        memcpy( &prval[1], p_cmd_start, prmLen );
+        prval[prmLen+1] = '\0';
+    }
+
+    return prval;
+}
+
+static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
+    char * p_rval = NULL;
+
+    if (NULL == p_opt->optionString)
+        return NULL;
+
+    if (('_' == p_opt->optionString[0])) {
+        // Non-standard option names must begin with "-X" or an underscore ("_"). For example, the JDK/JRE supports -Xms and -Xmx options to allow programmers specify the initial and maximum heap size. Options that begin with "-X" are accessible from the "java" command line.
+        p_rval = allocRvmCmdsForCustomCmds(&p_opt->optionString[1], p_opt);
+    }
+    if (('-' == p_opt->optionString[0])) {
+        switch (p_opt->optionString[1]) {
+        case 'd':
+        case 'D':
+            // http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/invocation.html
+            // -D<name>=<value>	Set a system property
+            break;
+        case 'x':
+        case 'X':
+            // http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/invocation.html
+            // Non-standard option names must begin with "-X" or an underscore ("_"). For example,
+            // the JDK/JRE supports -Xms and -Xmx options to allow programmers specify the initial
+            // and maximum heap size. Options that begin with "-X" are accessible from the "java"
+            // command line.
+            p_rval = allocRvmCmdsForCustomCmds(&p_opt->optionString[2], p_opt);
+            break;
+        case 'v':
+            if (&p_opt->optionString[1]
+                    == strstr(&p_opt->optionString[1], "verbose")) {
+                // http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/invocation.html
+                // -verbose[:class|gc|jni]	Enable verbose output. The options can be followed by a
+                // comma-separated list of names indicating what kind of messages will be printed
+                // by the VM. For example, "-verbose:gc,class" instructs the VM to print GC and
+                // class loading related messages. Standard names include: gc, class, and jni. All
+                // nonstandard (VM-specific) names must begin with "X".
+            }
+            break;
+        default:
+            break;
+        }
+
+    } else if (0 == strcmp(p_opt->optionString, "vfprintf")) {
+        // extraInfo is a pointer to the vfprintf hook.
+    } else if (0 == strcmp(p_opt->optionString, "exit")) {
+        // extraInfo is a pointer to the exit hook.
+    } else if (0 == strcmp(p_opt->optionString, "abort")) {
+        // extraInfo is a pointer to the abort hook.
+    }
+
+    return p_rval;
+}
+
+static void swapCharPtrs( char **ppC0, char **ppC1 ) {
+    char *tmp = *ppC0;
+    *ppC0 = *ppC1;
+    *ppC1 = tmp;
+}
+
+static jboolean createMainArgumentsFromVmArgs(const JavaVMInitArgs* const p_vm_args,
+        int *r_argc,
+		char ***r_argv) {
+	jboolean ok = FALSE;
+	const int MAX_PATH = 1024;
+
+	// Arg0 to robovm always is the path to the exe
+	const int n_argc_alloc = (p_vm_args) ? 1 + p_vm_args->nOptions : 1;
+
+	// We allocate an argv for every incoming option.
+	char **pp_argv = malloc(sizeof(char*) * n_argc_alloc);
+	if (NULL == pp_argv) {
+        fprintf(stderr, "createMainArgumentsFromVmArgs(...) failed to allocate memory!\n");
+        return FALSE;
+	}
+
+	// Argv[0] points to the exe path.
+	pp_argv[0] = malloc(sizeof(char) * MAX_PATH);
+	pp_argv[0] = get_selfpath(pp_argv[0], MAX_PATH);
+
+	// Argv[1..n_argc] are converted forms of the options flags.
+	if (p_vm_args) {
+	    ok = TRUE;
+		const int numOptions = p_vm_args->nOptions;
+		for (int i = 0; i < numOptions; i++) {
+			const JavaVMOption* const p_opt = &p_vm_args->options[i];
+			pp_argv[1+i] = getRVMOptionForJvmOption( p_opt );
+			ok &= (NULL != pp_argv[1+i]);
+		}
+		ok |= p_vm_args->ignoreUnrecognized;
+	}
+
+    // Move any NULL pointers to the end of pp_argv (bubble sort since it's dead simple
+	// and we won't ever be passing too many parameters.)
+	{
+	    jboolean sorted;
+	    do {
+	        sorted = TRUE;
+	        for (int i = 0; i < (n_argc_alloc-1); i++) {
+	            if((NULL == pp_argv[i]) && (NULL != pp_argv[i+1])) {
+	                swapCharPtrs( &pp_argv[i], &pp_argv[i+1] );
+	                sorted = FALSE;
+	            }
+	        }
+	    }
+	    while (!sorted);
+	}
+    // DONE -- Move any NULL pointers to the end of pp_argv (bubble sort - meh.)
+
+    // Count the number of contiguous parameters;
+	{
+        int n_argc = 0;
+        while (pp_argv[n_argc]) {
+            n_argc++;
+        }
+        if (r_argc) *r_argc = n_argc;
+	}
+    // DONE -- Count the number of contiguous parameters;
+
+    if (r_argv) *r_argv = pp_argv;
+
+	return ok;
+}
+
+void deallocArgCArgV( char ** argv ) {
+    if (NULL == argv) return;
+    int i = 0;
+    while (argv[i]) {
+        free( argv[i] );
+        argv[i++] = NULL;
+    }
+    free( argv );
+}
+
+jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
 
     initOptions();
 
-    JavaVMInitArgs *pArgs = (JavaVMInitArgs *)vm_args;
-    if (NULL != pArgs) {
-        // TODO: do something with the options passed in here.
+    JavaVMInitArgs *vm_args = (JavaVMInitArgs *)pvm_args;
+    if (NULL != vm_args) {
+        int argc = 0;
+        char **argv = NULL;
+        if (!createMainArgumentsFromVmArgs( vm_args, &argc, &argv ) ) {
+            fprintf(stderr, "createArgCArgVFromOptions(...) failed!\n");
+            deallocArgCArgV( argv );
+            return 1;
+        }
+        if (!rvmInitOptions(argc, argv, &options, FALSE)) {
+            fprintf(stderr, "rvmInitOptions(...) failed!\n");
+            deallocArgCArgV( argv );
+            return 1;
+        }
+        deallocArgCArgV( argv );
     }
-
-    {
-        // Fake argc & argv
+    else {
         // TODO: Do with real code that maps natively, rather than adding faked argc, argv.
-        int argc = 2;
+        const int argc = 1;
         char path[1024];
         char *argv1 = get_selfpath(path, sizeof(path));
-        char *argv2 = "-rvm:log=debug";
-        char *argv[3] = {argv1, argv2, NULL};
+        char *argv[2] = {argv1, NULL};
 
         if (!rvmInitOptions(argc, argv, &options, FALSE)) {
             fprintf(stderr, "rvmInitOptions(...) failed!\n");
