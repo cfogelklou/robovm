@@ -1237,7 +1237,7 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
         case 'D':
             // http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/invocation.html
             // -D<name>=<value>	Set a system property
-            fprintf(stderr, "-D option not supported in RoboVM!\n");
+            fprintf(stderr, "%s:\n\t-D option not yet supported!\n", p_opt->optionString);
             break;
         case 'x':
         case 'X':
@@ -1257,10 +1257,10 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
                 // by the VM. For example, "-verbose:gc,class" instructs the VM to print GC and
                 // class loading related messages. Standard names include: gc, class, and jni. All
                 // nonstandard (VM-specific) names must begin with "X".
-                fprintf(stderr, "-verbose[:class|gc|jni] option not yet supported!\n");
+                fprintf(stderr, "%s:\n\t-verbose[:class|gc|jni] option not yet supported!\n", p_opt->optionString);
 
                 // Default to "debug" logging if any verbose logging is enabled.
-                p_rval = allocRvmCmdsForCustomCmds("rvm:log=debug" );
+                p_rval = allocRvmCmdsForCustomCmds("rvm:log=debug");
             }
             break;
         default:
@@ -1269,10 +1269,13 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
 
     } else if (0 == strcmp(p_opt->optionString, "vfprintf")) {
         // extraInfo is a pointer to the vfprintf hook.
+        fprintf(stderr, "vfprintf() hook not yet supported!");
     } else if (0 == strcmp(p_opt->optionString, "exit")) {
         // extraInfo is a pointer to the exit hook.
+        fprintf(stderr, "exit() hook not yet supported!");
     } else if (0 == strcmp(p_opt->optionString, "abort")) {
         // extraInfo is a pointer to the abort hook.
+        fprintf(stderr, "abort() hook not yet supported!");
     }
 
     return p_rval;
