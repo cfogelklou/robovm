@@ -361,6 +361,11 @@ public class AppCompiler {
         List<Arch> ipaArchs = new ArrayList<>();
         String dumpConfigFile = null;
         List<String> runArgs = new ArrayList<String>();
+        
+        // TODO: REMOVE!
+        System.out.println("AppCompiler.java!!!!!");
+        //config.getLogger().debug("AppCompiler.java!!!!!");
+        
         try {
             builder = new Config.Builder();
             Map<String, PluginArgument> pluginArguments = builder.fetchPluginArguments();
