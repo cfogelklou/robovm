@@ -295,6 +295,11 @@ public class Linker {
                 objectFiles.add(f);
             }
         }
+        
+        // TODO: CHFO Remove debug
+        for (File f : objectFiles) {
+        	config.getLogger().info( "About to link object file: " + f.getAbsolutePath() + f.getName() );
+        }
 
         config.getTarget().build(objectFiles);
     }

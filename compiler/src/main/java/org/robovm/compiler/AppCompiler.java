@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +52,7 @@ import org.robovm.compiler.config.Arch;
 import org.robovm.compiler.config.Config;
 import org.robovm.compiler.config.Config.Home;
 import org.robovm.compiler.config.Config.TargetType;
+import org.robovm.compiler.config.Config.TargetBinary;
 import org.robovm.compiler.config.OS;
 import org.robovm.compiler.config.Resource;
 import org.robovm.compiler.log.ConsoleLogger;
@@ -196,6 +198,7 @@ public class AppCompiler {
             classes.add(clazz);
         }
         
+        // TODO CHFO: This will probably be the part of the code where we add the JNI routines.
         if (config.getForceLinkClasses().isEmpty()) {
             if (config.getMainClass() == null) {
                 classes.addAll(config.getClazzes().listClasses());
@@ -222,6 +225,18 @@ public class AppCompiler {
                 }
             }
         }
+        
+        // TODO CHFO remove this debug.
+        // Note, these are the JAVA classes that we need to keep.
+        // These come from the exported symbols in the robovm.xml file.
+        // We also need to add the JNI* symbols to "keep" when linking.
+        {
+	        Iterator<Clazz> iter = classes.iterator();
+	        while (iter.hasNext()) {
+	        	Clazz c = iter.next();
+	        	config.getLogger().info( "About to compile class: " + c.getClassName() );
+	        }
+        }        
         return classes;
     }    
     
@@ -230,6 +245,7 @@ public class AppCompiler {
             boolean compileDependencies) throws IOException {
 
         boolean result = false;
+        // CHFO REMOVE TRUE!
         if (config.isClean() || classCompiler.mustCompile(clazz)) {
             classCompiler.compile(clazz, executor, listener);
             result = true;
@@ -344,6 +360,17 @@ public class AppCompiler {
             }
         }
 
+        // TODO CHFO remove this debug.
+        // Note, these are the JAVA classes that we need to keep.
+        // These come from the exported symbols in the robovm.xml file.
+        {
+	        Iterator<Clazz> iter = linkClasses.iterator();
+	        while (iter.hasNext()) {
+	        	Clazz c = iter.next();
+	        	config.getLogger().info( "About to link class: " + c.getClassName() );
+	        }
+        }        
+        
         long start = System.currentTimeMillis();
         linker.link(linkClasses);
         long duration = System.currentTimeMillis() - start;
@@ -363,7 +390,7 @@ public class AppCompiler {
         List<String> runArgs = new ArrayList<String>();
         
         // TODO: REMOVE!
-        System.out.println("AppCompiler.java!!!!!");
+        System.out.println("AppCompiler.java!!!!!111!!!");
         //config.getLogger().debug("AppCompiler.java!!!!!");
         
         try {
@@ -452,6 +479,10 @@ public class AppCompiler {
                 } else if ("-target".equals(args[i])) {
                     String s = args[++i];
                     builder.targetType("auto".equals(s) ? null : TargetType.valueOf(s));
+                } else if ("-binaryType".equals(args[i])) {
+                    //public enum TargetBinary { executable, dynamic_lib, static_lib }; // TODO CHFO: extension?
+                	String s = args[++i];
+                    builder.targetBinary("auto".equals(s) ? null : TargetBinary.valueOf(s));
                 } else if ("-forcelinkclasses".equals(args[i])) {
                     for (String p : args[++i].split(":")) {
                         p = p.replace('#', '*');
@@ -547,7 +578,7 @@ public class AppCompiler {
             }
             
             builder.logger(new ConsoleLogger(verbose));
-            builder.skipInstall(run);
+            builder.skipInstall(run || (builder.build().getTargetBinary() == TargetBinary.dynamic_lib) );
             
             if (dumpConfigFile != null) {
                 if (dumpConfigFile.equals("-")) {

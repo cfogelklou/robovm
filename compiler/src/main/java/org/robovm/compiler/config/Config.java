@@ -95,6 +95,7 @@ public class Config {
 
     public enum Cacerts { full };
     public enum TargetType { console, ios };
+    public enum TargetBinary { executable, dynamic_lib, static_lib }; // TODO CHFO: extension?
     
     @Element(required = false)
     private File installDir = null;
@@ -138,6 +139,8 @@ public class Config {
     private ArrayList<String> pluginArguments;
     @Element(required = false, name = "target")
     private TargetType targetType;
+    @Element(required = false, name = "targetExec")
+    private TargetBinary targetBinary;
     
     @Element(required = false)
     private String iosSdkVersion;
@@ -431,6 +434,10 @@ public class Config {
     
     public TargetType getTargetType() {
         return targetType;
+    }
+
+    public TargetBinary getTargetBinary() {
+        return targetBinary;
     }
     
     public String getIosSdkVersion() {
@@ -729,8 +736,8 @@ public class Config {
             mainClass = getMainClass(mainJar);
             classpath.add(mainJar);
         }
-        
-        if (!skipLinking && executableName == null && mainClass == null) {
+
+        if (!skipLinking && executableName == null && mainClass == null && exportedSymbols == null || exportedSymbols.size() == 0) {
             throw new IllegalArgumentException("No target and no main class specified");
         }
 
@@ -1209,6 +1216,11 @@ public class Config {
 
         public Builder targetType(TargetType targetType) {
             config.targetType = targetType;
+            return this;
+        }
+
+        public Builder targetBinary(TargetBinary targetBinary) {
+            config.targetBinary = targetBinary;
             return this;
         }
         

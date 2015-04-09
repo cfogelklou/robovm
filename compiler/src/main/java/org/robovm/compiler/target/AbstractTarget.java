@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.robovm.compiler.clazz.Path;
 import org.robovm.compiler.config.Config;
+import org.robovm.compiler.config.Config.TargetBinary;
 import org.robovm.compiler.config.OS;
 import org.robovm.compiler.config.Resource;
 import org.robovm.compiler.config.Resource.Walker;
@@ -81,7 +83,16 @@ public abstract class AbstractTarget implements Target {
     public void build(List<File> objectFiles) throws IOException {
         File outFile = new File(config.getTmpDir(), config.getExecutableName());
         
-        config.getLogger().debug("Building executable %s", outFile);
+        final TargetBinary targetBinary = config.getTargetBinary();
+        if (targetBinary == TargetBinary.executable) {
+        	config.getLogger().debug("Building executable %s", outFile);
+        } else if (targetBinary == TargetBinary.dynamic_lib) {
+        	config.getLogger().debug("Building dynamic library %s", outFile);
+        } else {
+        	// TODO CHFO: this is not a real option.  To be deleted. 
+        	assert( targetBinary == TargetBinary.static_lib);
+        	config.getLogger().debug("Building static library %s", outFile);
+        }
         
         LinkedList<String> ccArgs = new LinkedList<String>();
         LinkedList<String> libs = new LinkedList<String>();
@@ -114,8 +125,10 @@ public abstract class AbstractTarget implements Target {
         ccArgs.add(config.getOsArchDepLibDir().getAbsolutePath());
         if (config.getOs().getFamily() == OS.Family.linux) {
             ccArgs.add("-Wl,-rpath=$ORIGIN");
+            // CHFO: This is where we add our list of "kept" s
             ccArgs.add("-Wl,--gc-sections");
-//            ccArgs.add("-Wl,--print-gc-sections");
+            // CHFO added this too.
+            ccArgs.add("-Wl,--print-gc-sections");
         } else if (config.getOs().getFamily() == OS.Family.darwin) {
             ccArgs.add("-ObjC");
             File exportedSymbolsFile = new File(config.getTmpDir(), "exported_symbols");
@@ -183,6 +196,29 @@ public abstract class AbstractTarget implements Target {
                     libs.add("-l" + p);
                 }
             }
+        }
+        
+        if (targetBinary == TargetBinary.dynamic_lib) {
+        	String objFileName = "/tmp/robovm_objfiles.txt";
+        	PrintWriter writer = new PrintWriter(objFileName, "UTF-8");;//new FileOutputStream("/tmp/robovmdbg.txt");
+        	
+        	for (File fobj : objectFiles) {
+        		//config.getLogger().debug("libs:" + s);
+        		writer.println(fobj.getAbsolutePath());
+        	}
+        	writer.close();
+        	
+        	libs.add( "-shared" );
+        	for (String s : libs) {
+        		config.getLogger().debug("libs:" + s);	
+        	}
+        	ccArgs.add("-fPIC");
+        	for (String s : ccArgs) {
+        		config.getLogger().debug("ccArgs:" + s);	
+        	}
+    		//config.getLogger().debug("outFile:" + outFile);	
+        	config.getLogger().debug("-->Building dynamic library:" + outFile);
+        	
         }
      
         doBuild(outFile, ccArgs, objectFiles, libs);

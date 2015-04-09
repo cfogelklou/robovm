@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.robovm.compiler.config.Config.Builder;
 import org.robovm.compiler.config.Config.Home;
 import org.robovm.compiler.config.Config.Lib;
+import org.robovm.compiler.config.Config.TargetBinary;
 import org.robovm.compiler.config.Config.TargetType;
 import org.zeroturnaround.zip.ZipUtil;
 
@@ -156,11 +157,30 @@ public class ConfigTest {
         builder.iosEntitlementsPList(new File("entitlements.plist"));
         builder.iosResourceRulesPList(new File(tmp, "resourcerules.plist"));
         builder.targetType(TargetType.ios);
+        builder.targetBinary(TargetBinary.executable);
         
         StringWriter out = new StringWriter();
         builder.write(out, wd);
         assertEquals(IOUtils.toString(getClass().getResourceAsStream("ConfigTest.ios.xml")), out.toString());
     }
+    
+    @Test
+    public void testWriteIOSExtension() throws Exception {
+    	// TODO CHFO - for now I just copied and pasted here.  This is where the real test should go.
+    	Config.Builder builder = new Config.Builder();
+        builder.iosSdkVersion("6.1");
+        builder.iosInfoPList(new File("Info.plist"));
+        builder.iosEntitlementsPList(new File("entitlements.plist"));
+        builder.iosResourceRulesPList(new File(tmp, "resourcerules.plist"));
+        builder.targetType(TargetType.ios);
+        builder.targetBinary(TargetBinary.executable);
+
+        /*
+        StringWriter out = new StringWriter();
+        builder.write(out, wd);
+        assertEquals(IOUtils.toString(getClass().getResourceAsStream("ConfigTest.ios.xml")), out.toString());
+        */
+    }    
     
     private File createMergeConfig(File tmpDir, String dir, String id, OS os, Arch arch, boolean jar) throws Exception {
         File p = new File(tmpDir, dir);
@@ -229,6 +249,7 @@ public class ConfigTest {
         builder.os(OS.macosx);
         builder.arch(Arch.x86);
         builder.targetType(TargetType.console);
+        builder.targetBinary(TargetBinary.executable);
         builder.mainClass("Main");
         builder.addClasspathEntry(p1);
         builder.addClasspathEntry(p2);
@@ -305,6 +326,7 @@ public class ConfigTest {
         builder.os(OS.macosx);
         builder.arch(Arch.x86);
         builder.targetType(TargetType.console);
+        builder.targetBinary(TargetBinary.executable);
         builder.mainClass("Main");
         builder.addBootClasspathEntry(new File(tmpDir, "bcp1"));
         builder.addBootClasspathEntry(new File(tmpDir, "bcp2"));
