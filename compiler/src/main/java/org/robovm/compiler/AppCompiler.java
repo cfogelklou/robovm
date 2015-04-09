@@ -594,6 +594,9 @@ public class AppCompiler {
                 return;
             }
             
+            builder.addExportedSymbol("_JNI_CreateJavaVM");
+            builder.addExportedSymbol("_JNI_GetCreatedJavaVMs");
+            
             compiler = new AppCompiler(builder.build());
             
             if (createIpa && (!(compiler.config.getTarget() instanceof IOSTarget) 

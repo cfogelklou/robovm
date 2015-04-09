@@ -737,7 +737,7 @@ public class Config {
             classpath.add(mainJar);
         }
 
-        if (!skipLinking && executableName == null && mainClass == null && forceLinkClasses == null || forceLinkClasses.size() == 0) {
+        if (!skipLinking && executableName == null && mainClass == null && (forceLinkClasses == null || forceLinkClasses.size() == 0)) {
             throw new IllegalArgumentException("No target and no main class specified, and no classes force-linked into project.");
         }
 
