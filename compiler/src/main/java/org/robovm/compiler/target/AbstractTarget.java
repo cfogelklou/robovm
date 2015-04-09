@@ -81,7 +81,9 @@ public abstract class AbstractTarget implements Target {
     }
     
     public void build(List<File> objectFiles) throws IOException {
-        File outFile = new File(config.getTmpDir(), config.getExecutableName());
+    	File outFile = (null != config.getExecutableName()) 
+    		? new File(config.getTmpDir(), config.getExecutableName()) 
+    		: new File(config.getTmpDir(), "robovm_java.dylib");
         
         final TargetBinary targetBinary = config.getTargetBinary();
         if (targetBinary == TargetBinary.executable) {
@@ -206,12 +208,15 @@ public abstract class AbstractTarget implements Target {
         		//config.getLogger().debug("libs:" + s);
         		writer.println(fobj.getAbsolutePath());
         	}
-        	writer.close();
         	
         	libs.add( "-shared" );
+    		writer.println("-shared libs");
         	for (String s : libs) {
         		config.getLogger().debug("libs:" + s);	
+        		writer.println(s);
         	}
+        	writer.close();
+
         	ccArgs.add("-fPIC");
         	for (String s : ccArgs) {
         		config.getLogger().debug("ccArgs:" + s);	
@@ -257,9 +262,14 @@ public abstract class AbstractTarget implements Target {
     }
     
     public void install() throws IOException {
-        config.getLogger().debug("Installing executable to %s", config.getInstallDir());
-        config.getInstallDir().mkdirs();
-        doInstall(config.getInstallDir(), config.getExecutableName());
+    	if (config.getInstallDir() != null) {
+	        config.getLogger().debug("Installing executable to %s", config.getInstallDir());
+	        config.getInstallDir().mkdirs();
+	        doInstall(config.getInstallDir(), config.getExecutableName());
+    	}
+    	else {
+    		config.getLogger().debug("No executable to install.");
+    	}
     }
     
     protected void doInstall(File installDir, String executable) throws IOException {

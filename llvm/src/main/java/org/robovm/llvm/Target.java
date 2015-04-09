@@ -82,6 +82,10 @@ public class Target {
         relocMode = relocMode == null ? RelocMode.RelocDefault : relocMode;
         codeModel = codeModel == null ? CodeModel.CodeModelDefault : codeModel;
         
+        if (relocMode != RelocMode.RelocPIC) {
+        	relocMode = relocMode; // TODO CHFO remove.
+        }
+        
         TargetMachineRef machineRef = LLVM.CreateTargetMachine(ref, triple, cpu, features, optLevel, relocMode, codeModel);
         if (machineRef == null) {
             throw new LlvmException("Failed to create TargetMachine for triple '" + triple + "'");

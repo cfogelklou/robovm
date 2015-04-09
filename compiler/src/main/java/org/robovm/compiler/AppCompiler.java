@@ -480,7 +480,6 @@ public class AppCompiler {
                     String s = args[++i];
                     builder.targetType("auto".equals(s) ? null : TargetType.valueOf(s));
                 } else if ("-binaryType".equals(args[i])) {
-                    //public enum TargetBinary { executable, dynamic_lib, static_lib }; // TODO CHFO: extension?
                 	String s = args[++i];
                     builder.targetBinary("auto".equals(s) ? null : TargetBinary.valueOf(s));
                 } else if ("-forcelinkclasses".equals(args[i])) {
@@ -578,7 +577,8 @@ public class AppCompiler {
             }
             
             builder.logger(new ConsoleLogger(verbose));
-            builder.skipInstall(run || (builder.build().getTargetBinary() == TargetBinary.dynamic_lib) );
+            
+            builder.skipInstall(run || (builder.getConfig().getTargetBinary() == TargetBinary.dynamic_lib) );
             
             if (dumpConfigFile != null) {
                 if (dumpConfigFile.equals("-")) {

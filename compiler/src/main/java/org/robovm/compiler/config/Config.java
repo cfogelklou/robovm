@@ -737,8 +737,8 @@ public class Config {
             classpath.add(mainJar);
         }
 
-        if (!skipLinking && executableName == null && mainClass == null && exportedSymbols == null || exportedSymbols.size() == 0) {
-            throw new IllegalArgumentException("No target and no main class specified");
+        if (!skipLinking && executableName == null && mainClass == null && forceLinkClasses == null || forceLinkClasses.size() == 0) {
+            throw new IllegalArgumentException("No target and no main class specified, and no classes force-linked into project.");
         }
 
         if (!skipLinking && classpath.isEmpty()) {
@@ -1318,6 +1318,11 @@ public class Config {
             }
             config.pluginArguments.add(argName);
         }
+        
+        // CHFO TODO: Am I disobeying any rules by allowing config to be fetched?  All I want is the targetBinary.
+        public final Config getConfig() {
+            return config;
+        }        
         
         public Config build() throws IOException {
             new RamDiskTools().setupRamDisk(this, config);
