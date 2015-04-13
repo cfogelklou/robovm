@@ -1365,6 +1365,8 @@ void deallocArgCArgV(char ** argv) {
     free(argv);
 }
 
+
+__attribute__((visibility("default")))
 jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
 
     initOptions();
@@ -1437,6 +1439,7 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
  RETURNS:
  Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
  */
+__attribute__((visibility("default")))
 jint JNI_GetCreatedJavaVMs(JavaVM** vmBuf, jsize bufLen, jsize* nVMs) {
     int numVms = (vm) ? 1 : 0;
     numVms = (bufLen < 1) ? bufLen : 1;

@@ -83,7 +83,7 @@ public abstract class AbstractTarget implements Target {
     public void build(List<File> objectFiles) throws IOException {
     	File outFile = (null != config.getExecutableName()) 
     		? new File(config.getTmpDir(), config.getExecutableName()) 
-    		: new File(config.getTmpDir(), "robovm_java.dylib");
+    		: new File("/tmp/", "robovm_java.so");
         
         final TargetBinary targetBinary = config.getTargetBinary();
         if (targetBinary == TargetBinary.executable) {
@@ -101,18 +101,25 @@ public abstract class AbstractTarget implements Target {
         
         String libSuffix = config.isUseDebugLibs() ? "-dbg" : "";
         
-        libs.add("-lrobovm-bc" + libSuffix); 
         if (config.getOs().getFamily() == OS.Family.darwin) {
+            libs.add("-lrobovm-bc" + libSuffix); 
             libs.add("-force_load");
             libs.add(new File(config.getOsArchDepLibDir(), "librobovm-rt" + libSuffix + ".a").getAbsolutePath());
+            if (config.isSkipInstall()) {
+                libs.add("-lrobovm-debug" + libSuffix);
+            }
+            libs.addAll(Arrays.asList(
+                    "-lrobovm-core" + libSuffix, "-lgc" + libSuffix, "-lpthread", "-ldl", "-lm"));
         } else {
+            libs.addAll(Arrays.asList("-Wl,--whole-archive", "-lrobovm-bc" + libSuffix, "-Wl,--no-whole-archive"));            
             libs.addAll(Arrays.asList("-Wl,--whole-archive", "-lrobovm-rt" + libSuffix, "-Wl,--no-whole-archive"));            
+            if (config.isSkipInstall()) {
+                //libs.add("-lrobovm-debug" + libSuffix);
+                libs.addAll(Arrays.asList("-Wl,--whole-archive", "-lrobovm-debug" + libSuffix, "-Wl,--no-whole-archive"));            
+            }
+            libs.addAll(Arrays.asList(
+            		"-Wl,--whole-archive", "-lrobovm-core" + libSuffix, "-Wl,--no-whole-archive", "-lgc" + libSuffix, "-lpthread", "-ldl", "-lm"));
         }
-        if (config.isSkipInstall()) {
-            libs.add("-lrobovm-debug" + libSuffix);
-        }
-        libs.addAll(Arrays.asList(
-                "-lrobovm-core" + libSuffix, "-lgc" + libSuffix, "-lpthread", "-ldl", "-lm"));
         if (config.getOs().getFamily() == OS.Family.linux) {
             libs.add("-lrt");
         }
@@ -126,11 +133,41 @@ public abstract class AbstractTarget implements Target {
         ccArgs.add("-L");
         ccArgs.add(config.getOsArchDepLibDir().getAbsolutePath());
         if (config.getOs().getFamily() == OS.Family.linux) {
-            ccArgs.add("-Wl,-rpath=$ORIGIN");
+            ccArgs.add("-Wl,--cref");
+            if (true) {//(targetBinary != TargetBinary.dynamic_lib) {
+            	ccArgs.add("-Wl,-rpath=$ORIGIN");
+            }
+            if (true) {
+	        	String symbolsPath = config.getTmpDir() + "/exported_symbols";
+	        	PrintWriter exportedSymbolsFile = new PrintWriter(symbolsPath, "UTF-8");
+	            List<String> exportedSymbols = new ArrayList<String>();
+	            if (config.isSkipInstall()) {
+	                exportedSymbols.add("catch_exception_raise");
+	            }
+	            exportedSymbols.addAll(config.getExportedSymbols());
+	        	exportedSymbolsFile.println("{");
+	        	for (String s : exportedSymbols) {
+	        		exportedSymbolsFile.println(s + ";");
+	        	}
+	    		exportedSymbolsFile.println("};");
+	    		exportedSymbolsFile.close();
+	    		config.getLogger().debug("Wrote exported symbols file: " + symbolsPath);
+	            ccArgs.add("-Wl,--dynamic-list=" + symbolsPath);
+            }
+            else {
+            	//ccArgs.add("-Wl,-e _JNI_CreateJavaVM");
+            	//ccArgs.add("-Wl,-e _JNI_GetCreatedJavaVMs");
+            	//ccArgs.add("-Wl,-e _JNI_CreateJavaVM");
+            	//ccArgs.add("-Wl,-e JNI_GetCreatedJavaVMs");
+            	//ccArgs.add("-Wl,-e rvmStartup");
+            	//ccArgs.add("-Wl,-e rvmCreateEnv");
+            	//ccArgs.add("-Wl,-e rvmDestroy");
+            	ccArgs.add("-Wl,--export-dynamic");
+            }
             // CHFO: This is where we add our list of "kept" s
             ccArgs.add("-Wl,--gc-sections");
             // CHFO added this too.
-            ccArgs.add("-Wl,--print-gc-sections");
+            //ccArgs.add("-Wl,--print-gc-sections");
         } else if (config.getOs().getFamily() == OS.Family.darwin) {
             ccArgs.add("-ObjC");
             File exportedSymbolsFile = new File(config.getTmpDir(), "exported_symbols");
@@ -201,12 +238,14 @@ public abstract class AbstractTarget implements Target {
         }
         
         if (targetBinary == TargetBinary.dynamic_lib) {
+        	// CHFO TODO integrate cleanly.
         	String objFileName = "/tmp/robovm_objfiles.txt";
         	PrintWriter writer = new PrintWriter(objFileName, "UTF-8");;//new FileOutputStream("/tmp/robovmdbg.txt");
         	
         	for (File fobj : objectFiles) {
         		//config.getLogger().debug("libs:" + s);
         		writer.println(fobj.getAbsolutePath());
+        		config.getLogger().debug("obj file" + fobj.getAbsolutePath());
         	}
         	
         	libs.add( "-shared" );

@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.exec.ExecuteException;
@@ -289,8 +291,18 @@ public class ToolchainUtil {
             opts.add(config.getArch().is32Bit() ? "-m32" : "-m64");
             opts.add("@" + objectsFile.getAbsolutePath());
         }
-        opts.addAll(args);
-
+       
+        if (false)
+        {
+        	// CHFO TODO: Only do when making a dynamic library.
+        	//opts.add("-Wl,--dynamic-list=${top_srcdir}/dynamic_symbol_table.txt");
+        	opts.add("-Wl,-whole-archive");
+            opts.addAll(args);
+        	opts.add("-Wl,-no-whole-archive");
+        }
+        else {
+            opts.addAll(args);
+        }
         new Executor(config.getLogger(), getCcPath(config)).args("-o", outFile, opts, libs).exec();
     }
 

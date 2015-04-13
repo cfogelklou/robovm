@@ -390,8 +390,16 @@ public class AppCompiler {
         List<String> runArgs = new ArrayList<String>();
         
         // TODO: REMOVE!
-        System.out.println("AppCompiler.java!!!!!111!!!");
         //config.getLogger().debug("AppCompiler.java!!!!!");
+        System.out.println("AppCompiler.java!!!!!111!!!");
+        {
+        	String theArgs = new String();
+            for (String s : args) {
+            	theArgs += s + " ";
+            }
+            System.out.println(theArgs);
+        }
+        	
         
         try {
             builder = new Config.Builder();
@@ -594,8 +602,9 @@ public class AppCompiler {
                 return;
             }
             
-            builder.addExportedSymbol("_JNI_CreateJavaVM");
-            builder.addExportedSymbol("_JNI_GetCreatedJavaVMs");
+            // CHFO TODO: Add to the command line ONLY when building a dynamic library.
+            builder.addExportedSymbol("JNI_CreateJavaVM");
+            builder.addExportedSymbol("JNI_GetCreatedJavaVMs");
             
             compiler = new AppCompiler(builder.build());
             
