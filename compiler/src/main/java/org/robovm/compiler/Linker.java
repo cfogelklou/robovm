@@ -213,6 +213,7 @@ public class Linker {
         mb.addGlobal(new Global("_bcClasspath", new ConstantGetelementptr(mb.newGlobal(classpathValues.build()).ref(), 0, 0)));
 
         if (config.getMainClass() != null) {
+        	config.getLogger().debug("_bcMainClass = " + config.getMainClass());
             mb.addGlobal(new Global("_bcMainClass", mb.getString(config.getMainClass())));
         }        
         

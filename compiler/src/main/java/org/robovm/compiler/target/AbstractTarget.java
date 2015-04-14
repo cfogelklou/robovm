@@ -81,11 +81,11 @@ public abstract class AbstractTarget implements Target {
     }
     
     public void build(List<File> objectFiles) throws IOException {
-    	File outFile = (null != config.getExecutableName()) 
+        final TargetBinary targetBinary = config.getTargetBinary();
+    	File outFile = ((null != config.getExecutableName()) && (targetBinary != TargetBinary.dynamic_lib)) 
     		? new File(config.getTmpDir(), config.getExecutableName()) 
     		: new File("/tmp/", "robovm_java.so");
         
-        final TargetBinary targetBinary = config.getTargetBinary();
         if (targetBinary == TargetBinary.executable) {
         	config.getLogger().debug("Building executable %s", outFile);
         } else if (targetBinary == TargetBinary.dynamic_lib) {

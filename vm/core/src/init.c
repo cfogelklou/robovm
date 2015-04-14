@@ -178,6 +178,8 @@ static void parseArg(char* arg, Options* options) {
 jboolean rvmInitOptions(int argc, char* argv[], Options* options, jboolean ignoreRvmArgs) {
     char path[PATH_MAX];
     if (!realpath(argv[0], path)) {
+        // TODO CHFO Remove
+        fprintf(stderr, "realpath() failed!\n");
         return FALSE;
     }
 
@@ -230,6 +232,9 @@ jboolean rvmInitOptions(int argc, char* argv[], Options* options, jboolean ignor
     if (options->commandLineArgsCount > 0) {
         options->commandLineArgs = &argv[firstJavaArg];
     }
+
+    // TODO CHFO Remove
+    fprintf(stderr, "options->mainClass = 0x%x\n", options->mainClass);
 
     return options->mainClass != NULL;
 }
