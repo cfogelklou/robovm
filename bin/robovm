@@ -16,7 +16,7 @@ if [ ! -f "$COMPILER_JAR" ]; then
 fi
 
 echo COMPILER_JAR is now $COMPILER_JAR
-COMPILER_JAR=/home/appsupport/Projects/robovm/robovm-dist/compiler/target/robovm-dist-compiler-1.0.1-SNAPSHOT.jar
+COMPILER_JAR=~/Projects/robovm/robovm-dist/compiler/target/robovm-dist-compiler-1.0.1-SNAPSHOT.jar
 echo COMPILER_JAR is now $COMPILER_JAR
 
 [ "x$JVM_MX" == 'x' ] && JVM_MX="2g"

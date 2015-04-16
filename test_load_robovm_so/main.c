@@ -57,7 +57,7 @@ int main( void ) {
 	        vm_args.version = JNI_VERSION_1_2;
 	        vm_args.options = options;
 	        vm_args.nOptions = sizeof(options)/sizeof(options[0]);
-	        //vm_args.ignoreUnrecognized = 1;
+	        vm_args.ignoreUnrecognized = 1;
 
 	        /* Note that in the JDK/JRE, there is no longer any
 	         * need to call JNI_GetDefaultJavaVMInitArgs().

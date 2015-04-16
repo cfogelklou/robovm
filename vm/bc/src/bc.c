@@ -1183,18 +1183,19 @@ jint JNI_GetDefaultJavaVMInitArgs(void* vm_args) {
  RETURNS:
  Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
  */
-#include <unistd.h>
+#if (defined(MACOS) || defined(DARWIN)) && (!defined(IOS))
+#include <dlfcn.h>
 char *getExecutablePath(char * const buf, const int maxlen) {
-#if 1
-    size_t len = readlink("/proc/self/exe", buf, maxlen - 1);
-    if (len != -1) {
-        buf[len] = '\0';
+    unsigned int size = maxlen;
+    //Mac OS X: _NSGetExecutablePath() (man 3 dyld)
+    if (_NSGetExecutablePath(buf, &size) == 0) {
+        fprintf(stderr, "executable path is %s\n", buf);
         return buf;
-    } else {
+    }
+    else {
+        fprintf(stderr, "buffer too small; need size %u\n", size);
         return NULL;
     }
-#else
-    //Mac OS X: _NSGetExecutablePath() (man 3 dyld)
     //Linux: readlink /proc/self/exe
     //Solaris: getexecname()
     //FreeBSD: sysctl CTL_KERN KERN_PROC KERN_PROC_PATHNAME -1
@@ -1202,8 +1203,27 @@ char *getExecutablePath(char * const buf, const int maxlen) {
     //NetBSD: readlink /proc/curproc/exe
     //DragonFly BSD: readlink /proc/curproc/file
     //Windows: GetModuleFileName() with hModule = NULL
-#endif
+
 }
+#elif defined(LINUX)
+#include <unistd.h>
+char *getExecutablePath(char * const buf, const int maxlen) {
+
+    size_t len = readlink("/proc/self/exe", buf, maxlen - 1);
+    if (len != -1) {
+        buf[len] = '\0';
+        return buf;
+    } else {
+        return NULL;
+    }
+}
+#else
+char *getExecutablePath(char * const buf, const int maxlen) {
+	fprintf(stderr, "getExecutablePath() returning NULL\n");
+	return NULL;
+}
+#endif
+
 
 // Custom parameters are passed in with "-x", "-X", or "_"
 static char * allocRvmCmdsForCustomCmds(const char * const p_cmd_start) {
@@ -1315,10 +1335,23 @@ static jboolean createMainArgumentsFromVmArgs(
         const int numOptions = p_vm_args->nOptions;
         for (int i = 0; i < numOptions; i++) {
             const JavaVMOption* const p_opt = &p_vm_args->options[i];
+            if ((NULL != p_opt) && (NULL != p_opt->optionString)) {
+            	fprintf(stderr, "getRVMOptionForJvmOption(%d = %s)\n", i, p_opt->optionString);
+            }
+            else {
+            	fprintf(stderr, "getRVMOptionForJvmOption(%d = NULL)\n", i);
+            }
             pp_argv[1 + i] = getRVMOptionForJvmOption(p_opt);
             ok &= (NULL != pp_argv[1 + i]);
+            if (!ok) {
+                fprintf(stderr, "pp_argv[1 + %d] = NULL\n", i);
+            }
         }
         ok |= p_vm_args->ignoreUnrecognized;
+    }
+    else {
+        fprintf(stderr,
+                "createMainArgumentsFromVmArgs(...): p_vm_args == NULL!\n");
     }
 
     // Move any NULL pointers to the end of pp_argv (bubble sort since it's dead simple
@@ -1372,11 +1405,12 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
     initOptions();
 
     JavaVMInitArgs *vm_args = (JavaVMInitArgs *) pvm_args;
+    fprintf(stderr, "JNI_CreateJavaVM(p_vm=0x%x, p_env=0x%x, pvm_args=0x%x)\n", (unsigned int)p_vm, (unsigned int)p_env, (unsigned int)pvm_args);
     if (NULL != vm_args) {
         int argc = 0;
         char **argv = NULL;
         if (!createMainArgumentsFromVmArgs(vm_args, &argc, &argv)) {
-            fprintf(stderr, "createArgCArgVFromOptions(...) failed!\n");
+            fprintf(stderr, "createMainArgumentsFromVmArgs(...) failed!\n");
             deallocArgCArgV(argv);
             return 1;
         }
