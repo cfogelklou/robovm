@@ -178,7 +178,7 @@ public class ToolchainUtil {
                 inDir, outDir).exec();
     }
 
-    public static void actool(Config config, File inDir, File outDir) throws IOException {
+    public static void actool(Config config, File partialInfoPlist, File inDir, File outDir) throws IOException {
         List<Object> opts = new ArrayList<>();
 
         String appIconSetName = null;
@@ -205,7 +205,6 @@ public class ToolchainUtil {
                 opts.add(launchImagesName);
             }
 
-            File partialInfoPlist = new File(inDir, "assetcatalog-partial-info.plist");
             opts.add("--output-partial-info-plist");
             opts.add(partialInfoPlist);
         }
@@ -230,7 +229,7 @@ public class ToolchainUtil {
                 "--compress-pngs", "--compile", outDir, inDir).exec();
     }
 
-    public static void ibtool(Config config, File inFile, File outFile) throws IOException {
+    public static void ibtool(Config config, File partialInfoPlist, File inFile, File outFile) throws IOException {
         String minOSVersion = config.getOs().getMinVersion();
         if (config.getIosInfoPList() != null) {
             String v = config.getIosInfoPList().getMinimumOSVersion();
@@ -239,9 +238,16 @@ public class ToolchainUtil {
             }
         }
 
-        new Executor(config.getLogger(), getIBTool()).args("--target-device", "iphone", "--target-device",
-                "ipad", "--minimum-deployment-target", minOSVersion, "--auto-activate-custom-fonts", "--output-format",
-                "human-readable-text", "--compile", outFile, inFile).exec();
+        Executor executor = new Executor(config.getLogger(), getIBTool()).args("--target-device", "iphone",
+                "--target-device", "ipad", "--minimum-deployment-target", minOSVersion,
+                "--output-partial-info-plist", partialInfoPlist, "--auto-activate-custom-fonts", "--output-format",
+                "human-readable-text");
+        if (outFile.isDirectory()) {
+            executor.args("--compilation-directory", outFile);
+        } else {
+            executor.args("--compile", outFile);
+        }
+        executor.args(inFile).exec();
     }
 
     public static void compileStrings(Config config, File inFile, File outFile) throws IOException {

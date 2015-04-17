@@ -36,6 +36,7 @@ import org.robovm.apple.coremedia.*;
 import org.robovm.apple.corevideo.*;
 import org.robovm.apple.audiotoolbox.*;
 import org.robovm.apple.mediatoolbox.*;
+import org.robovm.apple.audiounit.*;
 /*</imports>*/
 
 /*<javadoc>*/
@@ -554,6 +555,9 @@ import org.robovm.apple.mediatoolbox.*;
      */
     @Method(selector = "setCategory:withOptions:error:")
     protected native boolean setCategory(AVAudioSessionCategory category, AVAudioSessionCategoryOptions options, NSError.NSErrorPtr outError);
+    /**
+     * @since Available in iOS 8.0 and later.
+     */
     @Method(selector = "recordPermission")
     public native AVAudioSessionRecordPermission getRecordPermission();
     /**

@@ -19,45 +19,49 @@ package org.robovm.compiler.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Set;
 
+import org.robovm.compiler.Linker;
 import org.robovm.compiler.ModuleBuilder;
 import org.robovm.compiler.clazz.Clazz;
 import org.robovm.compiler.config.Config;
+import org.robovm.compiler.config.Config.Builder;
 import org.robovm.compiler.llvm.Function;
 
 import soot.SootMethod;
 
 /**
- * Abstract implementation for {@link CompilerPlugin} with empty 
- * implementations for all methods.
+ * Abstract implementation for {@link CompilerPlugin} with empty implementations
+ * for all methods.
  */
 public abstract class AbstractCompilerPlugin extends CompilerPlugin {
     @Override
     public PluginArguments getArguments() {
-        return new PluginArguments("", Collections.<PluginArgument>emptyList());
-    }
-    
-    @Override
-    public void beforeClass(Config config, Clazz clazz, ModuleBuilder moduleBuilder) 
-            throws IOException {
-    }
-    
-    @Override
-    public void beforeMethod(Config config, Clazz clazz, SootMethod method, 
-            ModuleBuilder moduleBuilder) throws IOException {
-    }
-    
-    @Override
-    public void afterClass(Config config, Clazz clazz, ModuleBuilder moduleBuilder) 
-            throws IOException {
-    }
-    
-    @Override
-    public void afterMethod(Config config, Clazz clazz, SootMethod method, 
-            ModuleBuilder moduleBuilder, Function function) throws IOException {
+        return new PluginArguments("", Collections.<PluginArgument> emptyList());
     }
 
     @Override
-    public void afterObjectFile(Config config, Clazz clazz, File objectFile) throws IOException {
-    }
+    public void beforeConfig(Builder builder, Config config) throws IOException {}
+
+    @Override
+    public void beforeClass(Config config, Clazz clazz, ModuleBuilder moduleBuilder)
+            throws IOException {}
+
+    @Override
+    public void beforeMethod(Config config, Clazz clazz, SootMethod method,
+            ModuleBuilder moduleBuilder) throws IOException {}
+
+    @Override
+    public void afterClass(Config config, Clazz clazz, ModuleBuilder moduleBuilder)
+            throws IOException {}
+
+    @Override
+    public void afterMethod(Config config, Clazz clazz, SootMethod method,
+            ModuleBuilder moduleBuilder, Function function) throws IOException {}
+
+    @Override
+    public void afterObjectFile(Config config, Clazz clazz, File objectFile) throws IOException {}
+
+    @Override
+    public void beforeLinker(Config config, Linker linker, Set<Clazz> classes) throws IOException {}
 }

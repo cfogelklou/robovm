@@ -36,6 +36,7 @@ import org.robovm.apple.coremedia.*;
 import org.robovm.apple.corevideo.*;
 import org.robovm.apple.audiotoolbox.*;
 import org.robovm.apple.mediatoolbox.*;
+import org.robovm.apple.audiounit.*;
 /*</imports>*/
 
 /*<javadoc>*/
@@ -60,6 +61,6 @@ import org.robovm.apple.mediatoolbox.*;
      * @since Available in iOS 7.0 and later.
      */
     @NotImplemented("legibleOutput:didOutputAttributedStrings:nativeSampleBuffers:forItemTime:")
-    public void didOutputAttributedStrings(AVPlayerItemLegibleOutput output, NSArray<NSAttributedString> strings, @org.robovm.rt.bro.annotation.Marshaler(NSArray.AsListMarshaler.class) List<CMSampleBuffer> nativeSamples, @ByVal CMTime itemTime) { throw new UnsupportedOperationException(); }
+    public void didOutputAttributedStrings(AVPlayerItemLegibleOutput output, NSArray<NSAttributedString> strings, @org.robovm.rt.bro.annotation.Marshaler(NSArray.AsListMarshaler.class) List<CMSampleBuffer> nativeSamples, @ByVal CMTime itemTime) {}
     /*</methods>*/
 }

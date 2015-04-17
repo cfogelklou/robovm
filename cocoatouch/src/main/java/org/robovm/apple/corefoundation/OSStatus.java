@@ -22,6 +22,7 @@ import org.robovm.rt.bro.annotation.Marshaler;
 
 @Marshaler(OSStatus.Marshaler.class)
 public final class OSStatus {
+    public static final OSStatus NO_ERR = new OSStatus(0);
 
     public static class Marshaler {
         @MarshalsValue
@@ -47,6 +48,10 @@ public final class OSStatus {
     
     public static OSStatus valueOf(int value) {
         return new OSStatus(value);
+    }
+    
+    public static OSStatus valueOf(ValuedEnum value) {
+        return new OSStatus((int)value.value());
     }
     
     @Override

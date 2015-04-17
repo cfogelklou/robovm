@@ -36,6 +36,7 @@ import org.robovm.apple.coremedia.*;
 import org.robovm.apple.corevideo.*;
 import org.robovm.apple.audiotoolbox.*;
 import org.robovm.apple.mediatoolbox.*;
+import org.robovm.apple.audiounit.*;
 /*</imports>*/
 
 /*<javadoc>*/
@@ -57,6 +58,6 @@ import org.robovm.apple.mediatoolbox.*;
     /*<members>*//*</members>*/
     /*<methods>*/
     @NotImplemented("outputSequenceWasFlushed:")
-    public void wasFlushed(AVPlayerItemOutput output) { throw new UnsupportedOperationException(); }
+    public void wasFlushed(AVPlayerItemOutput output) {}
     /*</methods>*/
 }

@@ -359,7 +359,34 @@ import org.robovm.apple.corelocation.*;
             }
         });
         
+        try {
+            preloadClasses();
+        } catch (UnsupportedEncodingException e) {
+            throw new Error(e);
+        }
+        
         main(argc, argv, principalClassName, delegateClassName);
+    }
+    
+    /**
+     * Preloads classes added during compilation, if any.
+     */
+    private static void preloadClasses() throws UnsupportedEncodingException {
+        byte[] data = VM.getRuntimeData(UIApplication.class.getName() + ".preloadClasses");
+        if (data != null) {
+            String[] customClasses = new String(data, "UTF8").split(",");
+            for (String customClass : customClasses) {
+                try {
+                    // Register class.
+                    @SuppressWarnings("unchecked")
+                    Class<? extends ObjCClass> cls = (Class<? extends ObjCClass>) Class.forName(customClass);
+                    ObjCClass.registerCustomClass(cls);
+                } catch (Throwable t) {
+                    Foundation.log("Failed to preload class " + customClass + ": " + t.getMessage());
+                    t.printStackTrace();
+                }
+            }
+        }
     }
     
     /*<methods>*/

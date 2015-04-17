@@ -17,12 +17,17 @@
 package org.robovm.compiler.target.ios;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,12 +39,17 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.AndFileFilter;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.robovm.compiler.CompilerException;
 import org.robovm.compiler.config.Arch;
 import org.robovm.compiler.config.Config;
 import org.robovm.compiler.config.OS;
 import org.robovm.compiler.config.Resource;
+import org.robovm.compiler.log.Logger;
 import org.robovm.compiler.target.AbstractTarget;
 import org.robovm.compiler.target.LaunchParameters;
 import org.robovm.compiler.target.Launcher;
@@ -64,7 +74,6 @@ import com.dd.plist.NSObject;
 import com.dd.plist.NSString;
 import com.dd.plist.PropertyListParser;
 import com.dd.plist.XMLPropertyListParser;
-import java.util.HashMap;
 
 /**
  * @author niklas
@@ -79,6 +88,7 @@ public class IOSTarget extends AbstractTarget {
     private SigningIdentity signIdentity;
     private ProvisioningProfile provisioningProfile;
     private IDevice device;
+    private File partialPListDir;
 
     public IOSTarget() {}
 
@@ -306,7 +316,8 @@ public class IOSTarget extends AbstractTarget {
 
     protected void prepareInstall(File installDir) throws IOException {
         createInfoPList(installDir);
-        generateDsym(installDir, getExecutable());
+        generateDsym(installDir, getExecutable(), false);
+
         if (isDeviceArch(arch)) {
             // only strip if this is not a debug build, otherwise
             // LLDB can't resolve the DWARF info
@@ -315,7 +326,7 @@ public class IOSTarget extends AbstractTarget {
             }
             copyResourcesPList(installDir);
             if (config.isIosSkipSigning()) {
-                config.getLogger().warn("Skiping code signing. The resulting app will "
+                config.getLogger().warn("Skipping code signing. The resulting app will "
                         + "be unsigned and will not run on unjailbroken devices");
                 ldid(entitlementsPList, installDir);
             } else {
@@ -345,7 +356,8 @@ public class IOSTarget extends AbstractTarget {
     protected void prepareLaunch(File appDir) throws IOException {
         super.doInstall(appDir, getExecutable());
         createInfoPList(appDir);
-        generateDsym(appDir, getExecutable());
+        generateDsym(appDir, getExecutable(), true);
+
         if (isDeviceArch(arch)) {
             copyResourcesPList(appDir);
             if (config.isIosSkipSigning()) {
@@ -430,12 +442,25 @@ public class IOSTarget extends AbstractTarget {
         }
     }
 
-    private void generateDsym(File dir, String executable) throws IOException {
-        File dsymDir = new File(dir.getParentFile(), dir.getName() + ".dSYM");
+    private void generateDsym(final File dir, final String executable, boolean copyToIndexedDir) throws IOException {
+        final File dsymDir = new File(dir.getParentFile(), dir.getName() + ".dSYM");
+        final File exePath = new File(dir, executable);
         FileUtils.deleteDirectory(dsymDir);
-        new Executor(config.getLogger(), "xcrun")
-                .args("dsymutil", "-o", dsymDir, new File(dir, executable))
+        final Process process = new Executor(config.getLogger(), "xcrun")
+                .args("dsymutil", "-o", dsymDir, exePath)
                 .execAsync();
+        if (copyToIndexedDir) {
+            new Thread() {
+                public void run() {
+                    try {
+                        process.waitFor();
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                    copyToIndexedDir(dir, executable, dsymDir, exePath);
+                }
+            }.start();
+        }
     }
 
     private void strip(File dir, String executable) throws IOException {
@@ -453,7 +478,15 @@ public class IOSTarget extends AbstractTarget {
     @Override
     protected Process doLaunch(LaunchParameters launchParameters) throws IOException {
         prepareLaunch(getAppDir());
-        return super.doLaunch(launchParameters);
+        Process process = super.doLaunch(launchParameters);
+        if (launchParameters instanceof IOSSimulatorLaunchParameters) {
+            File script = File.createTempFile("BISTF", ".scpt");
+            FileUtils.copyURLToFile(getClass().getResource("/BringIOSSimulatorToFront.scpt"), script);
+            new Executor(config.getHome().isDev() ? config.getLogger() : Logger.NULL_LOGGER, "osascript")
+                    .args(script)
+                    .execAsync();
+        }
+        return process;
     }
 
     public void createIpa(List<File> slices) throws IOException {
@@ -486,8 +519,7 @@ public class IOSTarget extends AbstractTarget {
             ToolchainUtil.textureatlas(config, dir, destDir);
             return false;
         } else if (dir.getName().endsWith(".xcassets")) {
-            // Asset Catalogs need to be compiled to the app bundle root.
-            ToolchainUtil.actool(config, dir, getAppDir());
+            ToolchainUtil.actool(config, createPartialInfoPlistFile(dir), dir, getAppDir());
             return false;
         }
         return super.processDir(resource, dir, destDir);
@@ -507,18 +539,21 @@ public class IOSTarget extends AbstractTarget {
             File outFile = new File(destDir, file.getName());
             ToolchainUtil.compileStrings(config, file, outFile);
         } else if (file.getName().toLowerCase().endsWith(".storyboard")) {
-            String fileName = file.getName();
-            fileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".storyboardc";
-            File outFile = new File(destDir, fileName);
-            ToolchainUtil.ibtool(config, file, outFile);
+            destDir.mkdirs();
+            ToolchainUtil.ibtool(config, createPartialInfoPlistFile(file), file, destDir);
         } else if (file.getName().toLowerCase().endsWith(".xib")) {
+            destDir.mkdirs();
             String fileName = file.getName();
             fileName = fileName.substring(0, fileName.lastIndexOf('.')) + ".nib";
             File outFile = new File(destDir, fileName);
-            ToolchainUtil.ibtool(config, file, outFile);
+            ToolchainUtil.ibtool(config, createPartialInfoPlistFile(file), file, outFile);
         } else {
             super.copyFile(resource, file, destDir);
         }
+    }
+
+    private File createPartialInfoPlistFile(File f) throws IOException {
+        return File.createTempFile(f.getName() + "_", ".plist", partialPListDir);
     }
 
     protected File getAppDir() {
@@ -567,7 +602,7 @@ public class IOSTarget extends AbstractTarget {
             dict.put(key, value);
         }
     }
-
+    
     protected void customizeInfoPList(NSDictionary dict) {
         if (isSimulatorArch(arch)) {
             dict.put("CFBundleSupportedPlatforms", new NSArray(new NSString("iPhoneSimulator")));
@@ -663,6 +698,15 @@ public class IOSTarget extends AbstractTarget {
         dict.put("DTPlatformName", sdk.getPlatformName());
         dict.put("DTSDKName", sdk.getCanonicalName());
 
+        for (File f : FileUtils.listFiles(partialPListDir, new String[] {"plist"}, false)) {
+            try {
+                NSDictionary d = (NSDictionary) PropertyListParser.parse(f);
+                dict.putAll(d);
+            } catch (Exception e) {
+                throw new CompilerException(e);
+            }
+        }
+
         if (dict.objectForKey("MinimumOSVersion") == null) {
             // This is required
             dict.put("MinimumOSVersion", "6.0");
@@ -711,7 +755,7 @@ public class IOSTarget extends AbstractTarget {
         }
 
         if (isDeviceArch(arch)) {
-            if (!config.isIosSkipSigning()) {
+            if (!config.isSkipLinking() && !config.isIosSkipSigning()) {
                 signIdentity = config.getIosSignIdentity();
                 if (signIdentity == null) {
                     signIdentity = SigningIdentity.find(SigningIdentity.list(),
@@ -725,7 +769,7 @@ public class IOSTarget extends AbstractTarget {
         }
 
         if (isDeviceArch(arch)) {
-            if (!config.isIosSkipSigning()) {
+            if (!config.isSkipLinking() &&!config.isIosSkipSigning()) {
                 provisioningProfile = config.getIosProvisioningProfile();
                 if (provisioningProfile == null) {
                     String bundleId = "*";
@@ -759,6 +803,14 @@ public class IOSTarget extends AbstractTarget {
         }
 
         entitlementsPList = config.getIosEntitlementsPList();
+
+        partialPListDir = new File(config.getTmpDir(), "partial-plists");
+        partialPListDir.mkdirs();
+        try {
+            FileUtils.cleanDirectory(partialPListDir);
+        } catch (IOException e) {
+            throw new CompilerException(e);
+        }
     }
 
     @Override
@@ -769,6 +821,61 @@ public class IOSTarget extends AbstractTarget {
     @Override
     public boolean canLaunchInPlace() {
         return false;
+    }
+
+    /**
+     * Copies the dSYM and the executable to {@code ~/Library/Developer/Xcode/
+     * DerivedData/RoboVM/Build/Products/<appname>_<timestamp>/}.
+     */
+    private void copyToIndexedDir(File dir, String executable, File dsymDir, File exePath) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        final File indexedDir = new File(System.getProperty("user.home"),
+                "Library/Developer/Xcode/DerivedData/RoboVM/Build/Products/"
+                        + FilenameUtils.removeExtension(dir.getName()) + "_"
+                        + sdf.format(new Date()));
+        indexedDir.mkdirs();
+        File indexedDSymDir = new File(indexedDir, dsymDir.getName());
+        File indexedAppDir = new File(indexedDir, dir.getName());
+        indexedAppDir.mkdirs();
+
+        try {
+            // No need to copy the whole .app folder. Just the exe
+            // is enough to make symbolication happy.
+            FileUtils.copyFile(exePath, new File(indexedAppDir, executable));
+        } catch (IOException e) {
+            config.getLogger().error("Failed to copy %s to indexed dir %s: %s",
+                    exePath.getAbsolutePath(),
+                    indexedAppDir.getAbsolutePath(), e.getMessage());
+        }
+
+        try {
+            FileUtils.copyDirectory(dsymDir, indexedDSymDir);
+        } catch (IOException e) {
+            config.getLogger().error("Failed to copy %s to indexed dir %s: %s",
+                    dsymDir.getAbsolutePath(),
+                    indexedDir.getAbsolutePath(), e.getMessage());
+        }
+
+        // Now do some cleanup and delete all but the 3 most recent dirs
+        List<File> dirs = new ArrayList<>(Arrays.asList(indexedDir.getParentFile().listFiles((FileFilter)
+                new AndFileFilter(
+                        new PrefixFileFilter(FilenameUtils.removeExtension(dir.getName())),
+                        new RegexFileFilter(".*_\\d{14}")))));
+        Collections.sort(dirs, new Comparator<File>() {
+            public int compare(File o1, File o2) {
+                return Long.compare(o1.lastModified(), o2.lastModified());
+            }
+        });
+        if (dirs.size() > 3) {
+            for (File f : dirs.subList(0, dirs.size() - 3)) {
+                try {
+                    FileUtils.deleteDirectory(f);
+                } catch (IOException e) {
+                    config.getLogger().error("Failed to delete diretcory %s",
+                            f.getAbsolutePath(), e.getMessage());
+                }
+            }
+        }
     }
 
     private final static Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{([^}]+)\\}");

@@ -51,25 +51,27 @@ import org.robovm.apple.foundation.*;
     public native String getLocalizedFallbackTitle();
     @Property(selector = "setLocalizedFallbackTitle:")
     public native void setLocalizedFallbackTitle(String v);
+    /**
+     * @since Available in iOS 8.1 and later.
+     */
+    @Property(selector = "maxBiometryFailures")
+    public native NSNumber getMaxBiometryFailures();
+    /**
+     * @since Available in iOS 8.1 and later.
+     */
+    @Property(selector = "setMaxBiometryFailures:")
+    public native void setMaxBiometryFailures(NSNumber v);
     /*</properties>*/
     /*<members>*//*</members>*/
-    /**
-     * 
-     * @param policy
-     * @return
-     * @throws NSErrorException
-     */
-    public boolean canEvaluatePolicy(LAPolicy policy) throws NSErrorException {
-        NSError.NSErrorPtr err = new NSError.NSErrorPtr();
-        boolean result = canEvaluatePolicy(policy, err);
-        if (err.get() != null) {
-            throw new NSErrorException(err.get());
-        }
-        return result;
-    }
     /*<methods>*/
+    public boolean canEvaluatePolicy(LAPolicy policy) throws NSErrorException {
+       NSError.NSErrorPtr ptr = new NSError.NSErrorPtr();
+       boolean result = canEvaluatePolicy(policy, ptr);
+       if (ptr.get() != null) { throw new NSErrorException(ptr.get()); }
+       return result;
+    }
     @Method(selector = "canEvaluatePolicy:error:")
-    protected native boolean canEvaluatePolicy(LAPolicy policy, NSError.NSErrorPtr error);
+    private native boolean canEvaluatePolicy(LAPolicy policy, NSError.NSErrorPtr error);
     @Method(selector = "evaluatePolicy:localizedReason:reply:")
     public native void evaluatePolicy(LAPolicy policy, String localizedReason, @Block VoidBlock2<Boolean, NSError> reply);
     /*</methods>*/

@@ -93,9 +93,17 @@ import org.simpleframework.xml.stream.OutputNode;
 @Root
 public class Config {
 
-    public enum Cacerts { full };
-    public enum TargetType { console, ios };
-    public enum TargetBinary { executable, dynamic_lib, static_lib }; // TODO CHFO: extension?
+    public enum Cacerts {
+        full
+    };
+
+    public enum TargetType {
+        console, ios
+    };
+
+    public enum TargetBinary { 
+        executable, dynamic_lib, static_lib 
+    }; // TODO CHFO: extension?
     
     @Element(required = false)
     private File installDir = null;

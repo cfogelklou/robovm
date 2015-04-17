@@ -40,7 +40,9 @@ public enum /*<name>*/NEVPNIKEv2EncryptionAlgorithm/*</name>*/ implements Valued
     DES(1L),
     _3DES(2L),
     AES128(3L),
-    AES256(4L);
+    AES256(4L),
+    AES128GCM(5L),
+    AES256GCM(6L);
     /*</values>*/
 
     /*<bind>*/
