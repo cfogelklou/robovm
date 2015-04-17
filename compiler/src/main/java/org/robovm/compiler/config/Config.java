@@ -63,6 +63,7 @@ import org.robovm.compiler.plugin.Plugin;
 import org.robovm.compiler.plugin.PluginArgument;
 import org.robovm.compiler.plugin.annotation.AnnotationImplPlugin;
 import org.robovm.compiler.plugin.lambda.LambdaPlugin;
+import org.robovm.compiler.plugin.objc.InterfaceBuilderClassesPlugin;
 import org.robovm.compiler.plugin.objc.ObjCBlockPlugin;
 import org.robovm.compiler.plugin.objc.ObjCMemberPlugin;
 import org.robovm.compiler.plugin.objc.ObjCProtocolProxyPlugin;
@@ -87,8 +88,7 @@ import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
 
 /**
- * @author niklas
- *
+ * Holds compiler configuration.
  */
 @Root
 public class Config {
@@ -206,6 +206,7 @@ public class Config {
     protected Config() throws IOException {
         // Add standard plugins
         this.plugins.addAll(0, Arrays.asList(
+                new InterfaceBuilderClassesPlugin(),
                 new ObjCProtocolProxyPlugin(),
                 new ObjCBlockPlugin(),
                 new ObjCMemberPlugin(),
@@ -421,11 +422,13 @@ public class Config {
     }        
     
     public List<File> getBootclasspath() {
-        return bootclasspath;
+        return bootclasspath == null ? Collections.<File> emptyList()
+                : Collections.unmodifiableList(bootclasspath);
     }
     
     public List<File> getClasspath() {
-        return classpath;
+        return classpath == null ? Collections.<File> emptyList()
+                : Collections.unmodifiableList(classpath);
     }
     
     public Properties getProperties() {
@@ -558,10 +561,10 @@ public class Config {
     }
     
     /**
-     * Returns the directory where generated classes are stored for the specified
-     * {@link Path}. Generated classes are stored in the cache directory in a dir
-     * at the same level as the cache dir for the {@link Path} with 
-     * <code>.generated</code> appended to the dir name.
+     * Returns the directory where generated classes are stored for the
+     * specified {@link Path}. Generated classes are stored in the cache
+     * directory in a dir at the same level as the cache dir for the
+     * {@link Path} with <code>.generated</code> appended to the dir name.
      */
     public File getGeneratedClassDir(Path path) {
         File pathCacheDir = getCacheDir(path);
@@ -711,7 +714,8 @@ public class Config {
                 try {
                     Object o = f.get(config);
                     if (o instanceof Collection && o instanceof Cloneable) {
-                        // Clone collections. Assume the class has a public clone() method.
+                        // Clone collections. Assume the class has a public
+                        // clone() method.
                         Method m = o.getClass().getMethod("clone");
                         o = m.invoke(o);
                     }
@@ -864,8 +868,8 @@ public class Config {
         }
         
         public static Home find() {
-            // Check if ROBOVM_DEV_ROOT has been set. If set it should be pointing
-            // at the root of a complete RoboVM source tree.
+            // Check if ROBOVM_DEV_ROOT has been set. If set it should be
+            // pointing at the root of a complete RoboVM source tree.
             if (System.getenv("ROBOVM_DEV_ROOT") != null) {
                 File dir = new File(System.getenv("ROBOVM_DEV_ROOT"));
                 return validateDevRootDir(dir);
@@ -896,8 +900,8 @@ public class Config {
         
         public static void validate(File dir) {
             String error = "Path " + dir + " is not a valid RoboVM install directory: ";
-            // Check for required dirs and match the compiler version
-            // with our version.
+            // Check for required dirs and match the compiler version with our
+            // version.
             if (!dir.exists()) {
                 throw new IllegalArgumentException(error + "no such path");
             }
@@ -1333,6 +1337,10 @@ public class Config {
         }        
         
         public Config build() throws IOException {
+            for (CompilerPlugin plugin : config.getCompilerPlugins()) {
+                plugin.beforeConfig(this, config);
+            }
+
             new RamDiskTools().setupRamDisk(this, config);
             return config.build();
         }
@@ -1442,8 +1450,9 @@ public class Config {
             } catch (Exception e) {
                 throw (IOException) new IOException().initCause(e);
             }
-            // <roots> was renamed to <forceLinkClasses> but we still support <roots>. We need to
-            // copy <roots> to <forceLinkClasses> and set <roots> to null.
+            // <roots> was renamed to <forceLinkClasses> but we still support
+            // <roots>. We need to copy <roots> to <forceLinkClasses> and set
+            // <roots> to null.
             if (config.roots != null && !config.roots.isEmpty()) {
                 if (config.forceLinkClasses == null) {
                     config.forceLinkClasses = new ArrayList<String>();
@@ -1497,8 +1506,8 @@ public class Config {
         }
         
         /**
-         * Fetches the {@link PluginArgument}s of all registered plugins
-         * for parsing.
+         * Fetches the {@link PluginArgument}s of all registered plugins for
+         * parsing.
          */
         public Map<String, PluginArgument> fetchPluginArguments() {
             Map<String, PluginArgument> args = new TreeMap<>();

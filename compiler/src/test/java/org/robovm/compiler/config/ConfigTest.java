@@ -157,30 +157,13 @@ public class ConfigTest {
         builder.iosEntitlementsPList(new File("entitlements.plist"));
         builder.iosResourceRulesPList(new File(tmp, "resourcerules.plist"));
         builder.targetType(TargetType.ios);
+        // CHFO TODO add test for dynamic_lib
         builder.targetBinary(TargetBinary.executable);
         
         StringWriter out = new StringWriter();
         builder.write(out, wd);
         assertEquals(IOUtils.toString(getClass().getResourceAsStream("ConfigTest.ios.xml")), out.toString());
     }
-    
-    @Test
-    public void testWriteIOSExtension() throws Exception {
-    	// TODO CHFO - for now I just copied and pasted here.  This is where the real test should go.
-    	Config.Builder builder = new Config.Builder();
-        builder.iosSdkVersion("6.1");
-        builder.iosInfoPList(new File("Info.plist"));
-        builder.iosEntitlementsPList(new File("entitlements.plist"));
-        builder.iosResourceRulesPList(new File(tmp, "resourcerules.plist"));
-        builder.targetType(TargetType.ios);
-        builder.targetBinary(TargetBinary.executable);
-
-        /*
-        StringWriter out = new StringWriter();
-        builder.write(out, wd);
-        assertEquals(IOUtils.toString(getClass().getResourceAsStream("ConfigTest.ios.xml")), out.toString());
-        */
-    }    
     
     private File createMergeConfig(File tmpDir, String dir, String id, OS os, Arch arch, boolean jar) throws Exception {
         File p = new File(tmpDir, dir);

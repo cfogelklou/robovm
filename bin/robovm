@@ -13,11 +13,11 @@ fi
 if [ ! -f "$COMPILER_JAR" ]; then
   echo "robovm-dist-compiler.jar not found"
 #  exit 1
+echo COMPILER_JAR is now $COMPILER_JAR
+COMPILER_JAR=~/Projects/robovm/robovm-dist/compiler/target/robovm-dist-compiler-1.1.1-SNAPSHOT.jar
+echo COMPILER_JAR is now $COMPILER_JAR
 fi
 
-echo COMPILER_JAR is now $COMPILER_JAR
-COMPILER_JAR=~/Projects/robovm/robovm-dist/compiler/target/robovm-dist-compiler-1.0.1-SNAPSHOT.jar
-echo COMPILER_JAR is now $COMPILER_JAR
 
 [ "x$JVM_MX" == 'x' ] && JVM_MX="2g"
 echo java -XX:+HeapDumpOnOutOfMemoryError -Xss1024k -Xmx$JVM_MX $JVM_OPTS -jar "$COMPILER_JAR" "$@"

@@ -57,9 +57,7 @@ static inline void releaseThreadStackTraceLock() {
 
 static Method* findMethod(Env* env, Class* clazz, const char* name, const char* desc) {
     Method* method = rvmGetMethods(env, clazz);
-    if (rvmExceptionCheck(env)) {
-        return NULL;
-    }
+    if (rvmExceptionCheck(env)) return NULL;
     for (; method != NULL; method = method->next) {
         if (!strcmp(method->name, name) && !strcmp(method->desc, desc)) {
             return method;
