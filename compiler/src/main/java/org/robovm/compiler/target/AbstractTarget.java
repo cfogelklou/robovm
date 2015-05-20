@@ -101,8 +101,8 @@ public abstract class AbstractTarget implements Target {
         
         String libSuffix = config.isUseDebugLibs() ? "-dbg" : "";
         
+        libs.add("-lrobovm-bc" + libSuffix); 
         if (config.getOs().getFamily() == OS.Family.darwin) {
-            libs.add("-lrobovm-bc" + libSuffix); 
             libs.add("-force_load");
             libs.add(new File(config.getOsArchDepLibDir(), "librobovm-rt" + libSuffix + ".a").getAbsolutePath());
             if (config.isSkipInstall()) {
@@ -111,7 +111,6 @@ public abstract class AbstractTarget implements Target {
             libs.addAll(Arrays.asList(
                     "-lrobovm-core" + libSuffix, "-lgc" + libSuffix, "-lpthread", "-ldl", "-lm"));
         } else {
-            libs.addAll(Arrays.asList("-Wl,--whole-archive", "-lrobovm-bc" + libSuffix, "-Wl,--no-whole-archive"));            
             libs.addAll(Arrays.asList("-Wl,--whole-archive", "-lrobovm-rt" + libSuffix, "-Wl,--no-whole-archive"));            
             if (config.isSkipInstall()) {
                 //libs.add("-lrobovm-debug" + libSuffix);
@@ -134,36 +133,22 @@ public abstract class AbstractTarget implements Target {
         ccArgs.add(config.getOsArchDepLibDir().getAbsolutePath());
         if (config.getOs().getFamily() == OS.Family.linux) {
             ccArgs.add("-Wl,--cref");
-            if (true) {//(targetBinary != TargetBinary.dynamic_lib) {
-            	ccArgs.add("-Wl,-rpath=$ORIGIN");
+            ccArgs.add("-Wl,-rpath=$ORIGIN");
+        	String symbolsPath = config.getTmpDir() + "/exported_symbols";
+        	PrintWriter exportedSymbolsFile = new PrintWriter(symbolsPath, "UTF-8");
+            List<String> exportedSymbols = new ArrayList<String>();
+            if (config.isSkipInstall()) {
+                exportedSymbols.add("catch_exception_raise");
             }
-            if (true) {
-	        	String symbolsPath = config.getTmpDir() + "/exported_symbols";
-	        	PrintWriter exportedSymbolsFile = new PrintWriter(symbolsPath, "UTF-8");
-	            List<String> exportedSymbols = new ArrayList<String>();
-	            if (config.isSkipInstall()) {
-	                exportedSymbols.add("catch_exception_raise");
-	            }
-	            exportedSymbols.addAll(config.getExportedSymbols());
-	        	exportedSymbolsFile.println("{");
-	        	for (String s : exportedSymbols) {
-	        		exportedSymbolsFile.println(s + ";");
-	        	}
-	    		exportedSymbolsFile.println("};");
-	    		exportedSymbolsFile.close();
-	    		config.getLogger().debug("Wrote exported symbols file: " + symbolsPath);
-	            ccArgs.add("-Wl,--dynamic-list=" + symbolsPath);
-            }
-            else {
-            	//ccArgs.add("-Wl,-e _JNI_CreateJavaVM");
-            	//ccArgs.add("-Wl,-e _JNI_GetCreatedJavaVMs");
-            	//ccArgs.add("-Wl,-e _JNI_CreateJavaVM");
-            	//ccArgs.add("-Wl,-e JNI_GetCreatedJavaVMs");
-            	//ccArgs.add("-Wl,-e rvmStartup");
-            	//ccArgs.add("-Wl,-e rvmCreateEnv");
-            	//ccArgs.add("-Wl,-e rvmDestroy");
-            	ccArgs.add("-Wl,--export-dynamic");
-            }
+            exportedSymbols.addAll(config.getExportedSymbols());
+        	exportedSymbolsFile.println("{");
+        	for (String s : exportedSymbols) {
+        		exportedSymbolsFile.println(s + ";");
+        	}
+    		exportedSymbolsFile.println("};");
+    		exportedSymbolsFile.close();
+    		config.getLogger().debug("Wrote exported symbols file: " + symbolsPath);
+            ccArgs.add("-Wl,--dynamic-list=" + symbolsPath);
             // CHFO: This is where we add our list of "kept" s
             ccArgs.add("-Wl,--gc-sections");
             // CHFO added this too.

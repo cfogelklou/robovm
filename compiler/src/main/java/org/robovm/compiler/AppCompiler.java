@@ -398,17 +398,6 @@ public class AppCompiler {
             }
         }
 
-        // TODO CHFO remove this debug.
-        // Note, these are the JAVA classes that we need to keep.
-        // These come from the exported symbols in the robovm.xml file.
-        if (false){
-	        Iterator<Clazz> iter = linkClasses.iterator();
-	        while (iter.hasNext()) {
-	        	Clazz c = iter.next();
-	        	config.getLogger().info( "About to link class: " + c.getClassName() );
-	        }
-        }        
-        
         long start = System.currentTimeMillis();
         linker.link(linkClasses);
         long duration = System.currentTimeMillis() - start;
