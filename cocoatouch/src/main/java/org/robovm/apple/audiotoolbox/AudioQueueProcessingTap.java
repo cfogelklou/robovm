@@ -44,7 +44,7 @@ import org.robovm.apple.coremidi.*;
     /*<implements>*//*</implements>*/ {
     
     public interface ProcessingTapCallback {
-        int process(AudioQueueProcessingTap aqTap, int numberFrames, AudioTimeStamp timeStamp, AudioQueueProcessingTapFlags flags, AudioBufferList data);
+        int process(AudioQueueProcessingTap aqTap, int numberFrames, AudioTimeStamp timeStamp, AudioQueueProcessingTapMutableFlags flags, AudioBufferList data);
     }
     
     /*<ptr>*/public static class AudioQueueProcessingTapPtr extends Ptr<AudioQueueProcessingTap, AudioQueueProcessingTapPtr> {}/*</ptr>*/
@@ -56,8 +56,8 @@ import org.robovm.apple.coremidi.*;
     
     static {
         try {
-            cbProcess = AudioQueueProcessingTap.class.getDeclaredMethod("cbProcess", Long.TYPE, AudioQueueProcessingTap.class, Integer.class, AudioTimeStamp.class, 
-                    AudioQueueProcessingTapFlags.class, IntPtr.class, AudioBufferList.class);
+            cbProcess = AudioQueueProcessingTap.class.getDeclaredMethod("cbProcess", Long.TYPE, AudioQueueProcessingTap.class, Integer.TYPE, AudioTimeStamp.class, 
+                    AudioQueueProcessingTapMutableFlags.class, IntPtr.class, AudioBufferList.class);
         } catch (Throwable e) {
             throw new Error(e);
         }
@@ -70,7 +70,7 @@ import org.robovm.apple.coremidi.*;
     /*<properties>*//*</properties>*/
     /*<members>*//*</members>*/
     @Callback
-    private static void cbProcess(@Pointer long clientData, AudioQueueProcessingTap aqTap, int numberFrames, AudioTimeStamp timeStamp, AudioQueueProcessingTapFlags flags, IntPtr outNumberFrames, AudioBufferList data) {
+    private static void cbProcess(@Pointer long clientData, AudioQueueProcessingTap aqTap, int numberFrames, AudioTimeStamp timeStamp, AudioQueueProcessingTapMutableFlags flags, IntPtr outNumberFrames, AudioBufferList data) {
         synchronized (callbacks) {
             int outFrames = callbacks.get(clientData).process(aqTap, numberFrames, timeStamp, flags, data);
             outNumberFrames.set(outFrames);
@@ -87,11 +87,11 @@ import org.robovm.apple.coremidi.*;
     protected static AudioQueueProcessingTap create(AudioQueue audioQueue, ProcessingTapCallback callback, AudioQueueProcessingTapFlags flags) throws OSStatusException {
         AudioQueueProcessingTap.AudioQueueProcessingTapPtr ptr = new AudioQueueProcessingTap.AudioQueueProcessingTapPtr();
         IntPtr maxFramesPtr = new IntPtr();
-        AudioStreamBasicDescription.AudioStreamBasicDescriptionPtr processingFormatPtr = new AudioStreamBasicDescription.AudioStreamBasicDescriptionPtr();
+        AudioStreamBasicDescription processingFormat = new AudioStreamBasicDescription();
         
         long cid = callbackId.getAndIncrement();
         
-        OSStatus status = create0(audioQueue, new FunctionPtr(cbProcess), cid, flags, maxFramesPtr, processingFormatPtr, ptr);
+        OSStatus status = create0(audioQueue, new FunctionPtr(cbProcess), cid, flags, maxFramesPtr, processingFormat, ptr);
         if (OSStatusException.throwIfNecessary(status)) {
             synchronized (callbacks) {
                 callbacks.put(cid, callback);
@@ -99,7 +99,7 @@ import org.robovm.apple.coremidi.*;
             
             AudioQueueProcessingTap result = ptr.get();
             result.maxProcessingFrames = maxFramesPtr.get();
-            result.processingFormat = processingFormatPtr.get();
+            result.processingFormat = processingFormat;
             return result;
         }
         return null;
@@ -160,7 +160,7 @@ import org.robovm.apple.coremidi.*;
      * @since Available in iOS 6.0 and later.
      */
     @Bridge(symbol="AudioQueueProcessingTapNew", optional=true)
-    protected static native OSStatus create0(AudioQueue inAQ, FunctionPtr inCallback, @Pointer long inClientData, AudioQueueProcessingTapFlags inFlags, IntPtr outMaxFrames, AudioStreamBasicDescription.AudioStreamBasicDescriptionPtr outProcessingFormat, AudioQueueProcessingTap.AudioQueueProcessingTapPtr outAQTap);
+    protected static native OSStatus create0(AudioQueue inAQ, FunctionPtr inCallback, @Pointer long inClientData, AudioQueueProcessingTapFlags inFlags, IntPtr outMaxFrames, AudioStreamBasicDescription outProcessingFormat, AudioQueueProcessingTap.AudioQueueProcessingTapPtr outAQTap);
     /**
      * @since Available in iOS 6.0 and later.
      */
