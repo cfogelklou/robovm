@@ -35,7 +35,6 @@ static Class* java_lang_StackTraceElement = NULL;
 static Method* java_lang_StackTraceElement_constructor = NULL;
 static ObjectArray* empty_java_lang_StackTraceElement_array = NULL;
 
-
 // A shared CallStack struct used by rvmCaptureCallStackForThread() that can store at most MAX_CALL_STACK_LENGTH 
 // frames. dumpThreadStackTrace() assumes MAX_CALL_STACK_LENGTH.
 static CallStack* shared_callStack = NULL;

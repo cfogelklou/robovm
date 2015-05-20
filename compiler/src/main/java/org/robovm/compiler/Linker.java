@@ -54,6 +54,7 @@ import org.robovm.compiler.clazz.Path;
 import org.robovm.compiler.config.Arch;
 import org.robovm.compiler.config.Config;
 import org.robovm.compiler.config.OS;
+import org.robovm.compiler.config.Config.TargetBinary;
 import org.robovm.compiler.hash.HashTableGenerator;
 import org.robovm.compiler.hash.ModifiedUtf8HashFunction;
 import org.robovm.compiler.llvm.ArrayConstant;
@@ -79,6 +80,7 @@ import org.robovm.llvm.PassManager;
 import org.robovm.llvm.Target;
 import org.robovm.llvm.TargetMachine;
 import org.robovm.llvm.binding.CodeGenFileType;
+import org.robovm.llvm.binding.RelocMode;
 
 /**
  *
@@ -372,6 +374,11 @@ public class Linker {
             }
         }
 
+        // TODO: CHFO Remove debug
+        for (File f : objectFiles) {
+        	config.getLogger().info( "About to link object file: " + f.getAbsolutePath() + f.getName() );
+        }
+
         config.getTarget().build(objectFiles);
     }
 
@@ -453,7 +460,11 @@ public class Linker {
 
                 String triple = config.getTriple();
                 Target target = Target.lookupTarget(triple);
-                try (TargetMachine targetMachine = target.createTargetMachine(triple)) {
+                
+                // Ensure to build relocatable if making a dynamic library.
+                try (TargetMachine targetMachine = target.createTargetMachine(
+                        triple, null, null, null, (config.getTargetBinary() != TargetBinary.dynamic_lib) 
+                        ? null : RelocMode.RelocPIC, null)) {
                     targetMachine.setAsmVerbosityDefault(true);
                     targetMachine.setFunctionSections(true);
                     targetMachine.setDataSections(true);

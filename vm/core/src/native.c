@@ -19,6 +19,9 @@
 extern struct JNINativeInterface_ jni;
 extern struct JNIInvokeInterface_ javaVM;
 
+// TODO chfo: Added this LOG_TAG.
+#define LOG_TAG "native.c"
+
 static Class* java_lang_reflect_Constructor = NULL;
 static Class* java_lang_reflect_Method = NULL;
 static Class* java_lang_reflect_Field = NULL;
@@ -65,8 +68,17 @@ static void throwUnsupportedOperationException(Env* env, char* msg) {
     rvmThrowNew(env, clazz, msg);
 }
 
+/*
+ * jint DestroyJavaVM(JavaVM *vm);
+ *
+ * Unloads a Java VM and reclaims its resources.
+ * The support for DestroyJavaVM was not complete in JDK/JRE 1.1. As of JDK/JRE 1.1 Only the main thread may call DestroyJavaVM.
+ * Since JDK/JRE 1.2, any thread, whether attached or not, can call this function. If the current thread is attached, the VM waits until the current thread is the only non-daemon user-level Java thread. If the current thread is not attached, the VM attaches the current thread and then waits until the current thread is the only non-daemon user-level thread. The JDK/JRE still does not support VM unloading, however.
+ */
 static jint DestroyJavaVM(JavaVM* vm) {
-    return JNI_ERR;
+    // Call rvmDestroy and send in VM.
+    jboolean rval = rvmDestroy((VM*)vm);
+    return rval ? JNI_OK : JNI_ERR;
 }
 
 static jint AttachCurrentThread(JavaVM* vm, void** penv, void* args) {
@@ -144,8 +156,8 @@ static jfieldID FromReflectedField(JNIEnv* env, jobject field) {
 static jobject ToReflectedMethod(JNIEnv* env, jclass cls, jmethodID methodID, jboolean isStatic) {
     Method* method = (Method*) methodID;
     if (((Class*) cls) != method->clazz || (METHOD_IS_STATIC(method) ? TRUE : FALSE) != isStatic) {
-        return NULL;
-    }
+    return NULL;
+}
     if (!strcmp("<init>", method->name)) {
         return (jobject) rvmNewObject((Env*) env, java_lang_reflect_Constructor, java_lang_reflect_Constructor_init, PTR_TO_LONG(method));
     } else {
@@ -202,8 +214,8 @@ static jboolean IsAssignableFrom(JNIEnv* env, jclass sub, jclass sup) {
 static jobject ToReflectedField(JNIEnv* env, jclass cls, jfieldID fieldID, jboolean isStatic) {
     Field* field = (Field*) fieldID;
     if (((Class*) cls) != field->clazz || (FIELD_IS_STATIC(field) ? TRUE : FALSE) != isStatic) {
-        return NULL;
-    }
+    return NULL;
+}
     return (jobject) rvmNewObject((Env*) env, java_lang_reflect_Field, java_lang_reflect_Field_init, PTR_TO_LONG(field));
 }
 

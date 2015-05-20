@@ -7,6 +7,7 @@ if (WITH_FPIC)
 endif()
 
 add_library(robovm-bc STATIC 
+  bcinvoke.c
   bc.c
   classinfo.c
   MurmurHash3.c

@@ -110,6 +110,10 @@ public class Config {
         console, ios
     };
 
+    public enum TargetBinary { 
+        executable, dynamic_lib, static_lib 
+    }; // TODO CHFO: extension?
+    
     @Element(required = false)
     private File installDir = null;
     @Element(required = false)
@@ -152,7 +156,9 @@ public class Config {
     private ArrayList<String> pluginArguments;
     @Element(required = false, name = "target")
     private TargetType targetType;
-
+    @Element(required = false, name = "targetExec")
+    private TargetBinary targetBinary;
+    
     @Element(required = false)
     private String iosSdkVersion;
     @Element(required = false, name = "iosInfoPList")
@@ -161,7 +167,7 @@ public class Config {
     private File iosResourceRulesPList;
     @Element(required = false)
     private File iosEntitlementsPList;
-
+    
     @Element(required = false)
     private Tools tools;
 
@@ -171,14 +177,14 @@ public class Config {
     private InfoPList iosInfoPList;
 
     private boolean iosSkipSigning = false;
-
+    
     private Properties properties = new Properties();
-
+    
     private Home home = null;
     private File tmpDir;
     private File cacheDir = new File(System.getProperty("user.home"), ".robovm/cache");
     private File ccBinPath = null;
-
+    
     private boolean clean = false;
     private boolean debug = false;
     private boolean useDebugLibs = false;
@@ -218,7 +224,7 @@ public class Config {
                 ));
         this.loadPluginsFromClassPath();
     }
-
+    
     /**
      * Returns a new {@link Builder} which builds exactly this {@link Config}
      * when {@link Builder#build()} is called.
@@ -226,11 +232,11 @@ public class Config {
     public Builder builder() throws IOException {
         return new Builder(clone(configBeforeBuild));
     }
-
+    
     public Home getHome() {
         return home;
     }
-
+    
     public File getInstallDir() {
         return installDir;
     }
@@ -238,7 +244,7 @@ public class Config {
     public String getExecutableName() {
         return executableName;
     }
-
+    
     public File getExecutablePath() {
         return new File(installDir, getExecutableName());
     }
@@ -270,7 +276,7 @@ public class Config {
     public DataLayout getDataLayout() {
         return dataLayout;
     }
-
+    
     public boolean isClean() {
         return clean;
     }
@@ -286,7 +292,7 @@ public class Config {
     public boolean isDumpIntermediates() {
         return dumpIntermediates;
     }
-
+    
     public boolean isSkipRuntimeLib() {
         return skipRuntimeLib != null && skipRuntimeLib.booleanValue();
     }
@@ -298,15 +304,15 @@ public class Config {
     public boolean isSkipInstall() {
         return skipInstall;
     }
-
+    
     public boolean isUseDynamicJni() {
         return useDynamicJni != null && useDynamicJni.booleanValue();
     }
-
+    
     public int getThreads() {
         return threads;
     }
-
+    
     public File getMainJar() {
         return mainJar;
     }
@@ -318,15 +324,15 @@ public class Config {
     public Cacerts getCacerts() {
         return cacerts == null ? Cacerts.full : cacerts;
     }
-
+    
     public List<Path> getResourcesPaths() {
         return resourcesPaths;
     }
-
+    
     public void addResourcesPath(Path path) {
         resourcesPaths.add(path);
     }
-
+    
     public File getTmpDir() {
         if (tmpDir == null) {
             try {
@@ -341,44 +347,44 @@ public class Config {
     }
 
     public List<String> getForceLinkClasses() {
-        return forceLinkClasses == null ? Collections.<String> emptyList()
+        return forceLinkClasses == null ? Collections.<String>emptyList() 
                 : Collections.unmodifiableList(forceLinkClasses);
     }
-
+    
     public List<String> getExportedSymbols() {
-        return exportedSymbols == null ? Collections.<String> emptyList()
+        return exportedSymbols == null ? Collections.<String>emptyList() 
                 : Collections.unmodifiableList(exportedSymbols);
     }
-
+    
     public List<Lib> getLibs() {
-        return libs == null ? Collections.<Lib> emptyList()
+        return libs == null ? Collections.<Lib>emptyList() 
                 : Collections.unmodifiableList(libs);
     }
-
+    
     public List<String> getFrameworks() {
-        return frameworks == null ? Collections.<String> emptyList()
+        return frameworks == null ? Collections.<String>emptyList() 
                 : Collections.unmodifiableList(frameworks);
     }
-
+    
     public List<String> getWeakFrameworks() {
-        return weakFrameworks == null ? Collections.<String> emptyList()
+        return weakFrameworks == null ? Collections.<String>emptyList() 
                 : Collections.unmodifiableList(weakFrameworks);
     }
 
     public List<File> getFrameworkPaths() {
-        return frameworkPaths == null ? Collections.<File> emptyList()
+        return frameworkPaths == null ? Collections.<File>emptyList() 
                 : Collections.unmodifiableList(frameworkPaths);
     }
 
     public List<Resource> getResources() {
-        return resources == null ? Collections.<Resource> emptyList()
+        return resources == null ? Collections.<Resource>emptyList() 
                 : Collections.unmodifiableList(resources);
     }
-
+    
     public File getOsArchDepLibDir() {
         return osArchDepLibDir;
     }
-
+    
     public Clazzes getClazzes() {
         return clazzes;
     }
@@ -386,15 +392,15 @@ public class Config {
     public VTable.Cache getVTableCache() {
         return vtableCache;
     }
-
+    
     public ITable.Cache getITableCache() {
         return itableCache;
     }
-
+    
     public MarshalerLookup getMarshalerLookup() {
         return marshalerLookup;
     }
-
+    
     public List<CompilerPlugin> getCompilerPlugins() {
         List<CompilerPlugin> compilerPlugins = new ArrayList<>();
         for (Plugin plugin : plugins) {
@@ -414,46 +420,50 @@ public class Config {
         }
         return launchPlugins;
     }
-
+    
     public List<Plugin> getPlugins() {
         return plugins;
     }
-
+    
     public List<String> getPluginArguments() {
-        return pluginArguments == null ? Collections.<String> emptyList()
+        return pluginArguments == null ? Collections.<String>emptyList()
                 : Collections.unmodifiableList(pluginArguments);
-    }
-
+    }        
+    
     public List<File> getBootclasspath() {
         return bootclasspath == null ? Collections.<File> emptyList()
                 : Collections.unmodifiableList(bootclasspath);
     }
-
+    
     public List<File> getClasspath() {
         return classpath == null ? Collections.<File> emptyList()
                 : Collections.unmodifiableList(classpath);
     }
-
+    
     public Properties getProperties() {
         return properties;
     }
-
+    
     public Logger getLogger() {
         return logger;
     }
-
+    
     public Target getTarget() {
         return target;
     }
-
+    
     public TargetType getTargetType() {
         return targetType;
     }
 
+    public TargetBinary getTargetBinary() {
+        return targetBinary;
+    }
+    
     public String getIosSdkVersion() {
         return iosSdkVersion;
     }
-
+    
     public String getIosDeviceType() {
         return iosDeviceType;
     }
@@ -464,7 +474,7 @@ public class Config {
         }
         return iosInfoPList;
     }
-
+    
     public File getIosResourceRulesPList() {
         return iosResourceRulesPList;
     }
@@ -484,18 +494,18 @@ public class Config {
     public boolean isIosSkipSigning() {
         return iosSkipSigning;
     }
-
+    
     public Tools getTools() {
         return tools;
     }
-
+    
     private static File makeFileRelativeTo(File dir, File f) {
         if (f.getParentFile() == null) {
             return dir;
         }
         return new File(makeFileRelativeTo(dir, f.getParentFile()), f.getName());
     }
-
+    
     public String getArchiveName(Path path) {
         if (path.getFile().isFile()) {
             return path.getFile().getName();
@@ -503,7 +513,7 @@ public class Config {
             return "classes" + path.getIndex() + ".jar";
         }
     }
-
+    
     static String getFileName(Clazz clazz, String ext) {
         return getFileName(clazz.getInternalName(), ext, MAX_FILE_NAME_LENGTH);
     }
@@ -532,15 +542,15 @@ public class Config {
     public File getBcFile(Clazz clazz) {
         return new File(getCacheDir(clazz.getPath()), getFileName(clazz, "class.bc"));
     }
-
+    
     public File getSFile(Clazz clazz) {
         return new File(getCacheDir(clazz.getPath()), getFileName(clazz, "class.s"));
     }
-
+    
     public File getOFile(Clazz clazz) {
         return new File(getCacheDir(clazz.getPath()), getFileName(clazz, "class.o"));
     }
-
+    
     public File getLinesOFile(Clazz clazz) {
         return new File(getCacheDir(clazz.getPath()), getFileName(clazz, "class.lines.o"));
     }
@@ -552,7 +562,7 @@ public class Config {
     public File getInfoFile(Clazz clazz) {
         return new File(getCacheDir(clazz.getPath()), getFileName(clazz, "class.info"));
     }
-
+    
     public File getCacheDir(Path path) {
         File srcRoot = path.getFile().getParentFile();
         String name = path.getFile().getName();
@@ -562,7 +572,7 @@ public class Config {
             throw new RuntimeException(e);
         }
     }
-
+    
     /**
      * Returns the directory where generated classes are stored for the
      * specified {@link Path}. Generated classes are stored in the cache
@@ -573,7 +583,7 @@ public class Config {
         File pathCacheDir = getCacheDir(path);
         return new File(pathCacheDir.getParentFile(), pathCacheDir.getName() + ".generated");
     }
-
+    
     private static Map<Object, Object> getManifestAttributes(File jarFile) throws IOException {
         JarFile jf = null;
         try {
@@ -583,7 +593,7 @@ public class Config {
             jf.close();
         }
     }
-
+    
     private static String getImplementationVersion(File jarFile) throws IOException {
         return (String) getManifestAttributes(jarFile).get(Attributes.Name.IMPLEMENTATION_VERSION);
     }
@@ -591,12 +601,12 @@ public class Config {
     private static String getMainClass(File jarFile) throws IOException {
         return (String) getManifestAttributes(jarFile).get(Attributes.Name.MAIN_CLASS);
     }
-
+    
     private File extractIfNeeded(Path path) throws IOException {
         if (path.getFile().isFile()) {
             File pathCacheDir = getCacheDir(path);
             File target = new File(pathCacheDir.getParentFile(), pathCacheDir.getName() + ".extracted");
-
+            
             if (!target.exists() || path.getFile().lastModified() > target.lastModified()) {
                 FileUtils.deleteDirectory(target);
                 target.mkdirs();
@@ -607,9 +617,9 @@ public class Config {
                         if (entry.getName().startsWith("META-INF/robovm/") && !entry.isDirectory()) {
                             File f = new File(target, entry.getName());
                             f.getParentFile().mkdirs();
-                            try (InputStream in = zipFile.getInputStream(entry);
+                            try (InputStream in = zipFile.getInputStream(entry); 
                                  OutputStream out = new FileOutputStream(f)) {
-
+                                
                                 IOUtils.copy(in, out);
                                 if (entry.getTime() != -1) {
                                     f.setLastModified(entry.getTime());
@@ -620,13 +630,13 @@ public class Config {
                 }
                 target.setLastModified(path.getFile().lastModified());
             }
-
+            
             return target;
         } else {
             return path.getFile();
         }
     }
-
+    
     private <T> ArrayList<T> mergeLists(ArrayList<T> from, ArrayList<T> to) {
         if (from == null) {
             return to;
@@ -639,7 +649,7 @@ public class Config {
         }
         return to;
     }
-
+    
     private void mergeConfig(Config from, Config to) {
         to.exportedSymbols = mergeLists(from.exportedSymbols, to.exportedSymbols);
         to.forceLinkClasses = mergeLists(from.forceLinkClasses, to.forceLinkClasses);
@@ -649,15 +659,15 @@ public class Config {
         to.resources = mergeLists(from.resources, to.resources);
         to.weakFrameworks = mergeLists(from.weakFrameworks, to.weakFrameworks);
     }
-
+    
     private void mergeConfigsFromClasspath() throws IOException {
         List<String> dirs = Arrays.asList(
-                "META-INF/robovm/" + os + "/" + arch,
+                "META-INF/robovm/" + os + "/" + arch, 
                 "META-INF/robovm/" + os);
 
         // The algorithm below preserves the order of config data from the
         // classpath. Last the config from this object is added.
-
+        
         // First merge all configs on the classpath to an empty Config
         Config config = new Config();
         for (Path path : clazzes.getPaths()) {
@@ -671,10 +681,10 @@ public class Config {
                 }
             }
         }
-
+        
         // Then merge with this Config
         mergeConfig(this, config);
-
+        
         // Copy back to this Config
         this.exportedSymbols = config.exportedSymbols;
         this.forceLinkClasses = config.forceLinkClasses;
@@ -684,7 +694,7 @@ public class Config {
         this.resources = config.resources;
         this.weakFrameworks = config.weakFrameworks;
     }
-
+    
     private void loadPluginsFromClassPath() throws IOException {
         try (InputStream in = getClass().getResourceAsStream("/META-INF/robovm/plugins.properties")) {
             if (in != null) {
@@ -730,40 +740,40 @@ public class Config {
         }
         return clone;
     }
-
+    
     private Config build() throws IOException {
         // Create a clone of this Config before we have done anything with it so
         // that builder() has a fresh Config it can use.
         this.configBeforeBuild = clone(this);
-
+        
         if (home == null) {
             home = Home.find();
         }
-
+        
         if (bootclasspath == null) {
             bootclasspath = new ArrayList<File>();
         }
         if (classpath == null) {
             classpath = new ArrayList<File>();
         }
-
+        
         if (mainJar != null) {
             mainClass = getMainClass(mainJar);
             classpath.add(mainJar);
         }
 
-        if (!skipLinking && executableName == null && mainClass == null) {
-            throw new IllegalArgumentException("No target and no main class specified");
+        if (!skipLinking && executableName == null && mainClass == null && (forceLinkClasses == null || forceLinkClasses.size() == 0)) {
+            throw new IllegalArgumentException("No target and no main class specified, and no classes force-linked into project.");
         }
 
         if (!skipLinking && classpath.isEmpty()) {
             throw new IllegalArgumentException("No classpath specified");
         }
-
+        
         if (skipLinking) {
             skipInstall = true;
         }
-
+        
         if (executableName == null) {
             executableName = mainClass;
         }
@@ -777,7 +787,7 @@ public class Config {
         this.vtableCache = new VTable.Cache();
         this.itableCache = new ITable.Cache();
         this.marshalerLookup = new MarshalerLookup(this);
-
+        
         if (!skipInstall) {
             if (installDir == null) {
                 installDir = new File(".", executableName);
@@ -798,23 +808,23 @@ public class Config {
             }
         }
         target.init(this);
-
+        
         os = target.getOs();
         arch = target.getArch();
         dataLayout = new DataLayout(getTriple());
-
-        osArchDepLibDir = new File(new File(home.libVmDir, os.toString()),
+        
+        osArchDepLibDir = new File(new File(home.libVmDir, os.toString()), 
                 arch.toString());
-
+        
         File osDir = new File(cacheDir, os.toString());
         File archDir = new File(osDir, arch.toString());
         osArchCacheDir = new File(archDir, debug ? "debug" : "release");
         osArchCacheDir.mkdirs();
 
-        this.clazzes = new Clazzes(this, realBootclasspath, classpath);
+        this.clazzes = new Clazzes(this, realBootclasspath, classpath);        
 
         mergeConfigsFromClasspath();
-
+        
         return this;
     }
 
@@ -828,7 +838,7 @@ public class Config {
         public Home(File homeDir) {
             this(homeDir, true);
         }
-
+        
         protected Home(File homeDir, boolean validate) {
             if (validate) {
                 validate(homeDir);
@@ -839,13 +849,13 @@ public class Config {
             cacertsPath = new HashMap<Cacerts, File>();
             cacertsPath.put(Cacerts.full, new File(homeDir, "lib/robovm-cacerts-full.jar"));
         }
-
+        
         private Home(File devDir, File binDir, File libVmDir, File rtPath) {
             this.binDir = binDir;
             this.libVmDir = libVmDir;
             this.rtPath = rtPath;
             cacertsPath = new HashMap<Cacerts, File>();
-            cacertsPath.put(Cacerts.full, new File(devDir,
+            cacertsPath.put(Cacerts.full, new File(devDir, 
                     "cacerts/full/target/robovm-cacerts-full-" + Version.getVersion() + ".jar"));
             this.dev = true;
         }
@@ -857,19 +867,19 @@ public class Config {
         public File getBinDir() {
             return binDir;
         }
-
+        
         public File getLibVmDir() {
             return libVmDir;
         }
-
+        
         public File getRtPath() {
             return rtPath;
         }
-
+        
         public File getCacertsPath(Cacerts cacerts) {
             return cacertsPath.get(cacerts);
         }
-
+        
         public static Home find() {
             // Check if ROBOVM_DEV_ROOT has been set. If set it should be
             // pointing at the root of a complete RoboVM source tree.
@@ -877,12 +887,12 @@ public class Config {
                 File dir = new File(System.getenv("ROBOVM_DEV_ROOT"));
                 return validateDevRootDir(dir);
             }
-
+            
             if (System.getenv("ROBOVM_HOME") != null) {
                 File dir = new File(System.getenv("ROBOVM_HOME"));
                 return new Home(dir);
             }
-
+            
             List<File> candidates = new ArrayList<File>();
             File userHome = new File(System.getProperty("user.home"));
             candidates.add(new File(userHome, "Applications/robovm"));
@@ -890,17 +900,17 @@ public class Config {
             candidates.add(new File("/usr/local/lib/robovm"));
             candidates.add(new File("/opt/robovm"));
             candidates.add(new File("/usr/lib/robovm"));
-
+            
             for (File dir : candidates) {
                 if (dir.exists()) {
                     return new Home(dir);
                 }
             }
-
-            throw new IllegalArgumentException("ROBOVM_HOME not set and no RoboVM "
+            
+            throw new IllegalArgumentException("ROBOVM_HOME not set and no RoboVM " 
                     + "installation found in " + candidates);
         }
-
+        
         public static void validate(File dir) {
             String error = "Path " + dir + " is not a valid RoboVM install directory: ";
             // Check for required dirs and match the compiler version with our
@@ -908,11 +918,11 @@ public class Config {
             if (!dir.exists()) {
                 throw new IllegalArgumentException(error + "no such path");
             }
-
+            
             if (!dir.isDirectory()) {
                 throw new IllegalArgumentException(error + "not a directory");
             }
-
+            
             File libDir = new File(dir, "lib");
             if (!libDir.exists() || !libDir.isDirectory()) {
                 throw new IllegalArgumentException(error + "lib/ missing or invalid");
@@ -927,21 +937,21 @@ public class Config {
             }
             File rtJarFile = new File(libDir, "robovm-rt.jar");
             if (!rtJarFile.exists() || !rtJarFile.isFile()) {
-                throw new IllegalArgumentException(error
+                throw new IllegalArgumentException(error 
                         + "lib/robovm-rt.jar missing or invalid");
             }
-
+            
             // Compare the version of this compiler with the version of the
             // robovm-rt.jar in the home dir. They have to match.
             try {
                 String thisVersion = Version.getVersion();
                 String thatVersion = getImplementationVersion(rtJarFile);
                 if (thisVersion == null || thatVersion == null || !thisVersion.equals(thatVersion)) {
-                    throw new IllegalArgumentException(error + "version mismatch (expected: "
+                    throw new IllegalArgumentException(error + "version mismatch (expected: " 
                             + thisVersion + ", was: " + thatVersion + ")");
                 }
             } catch (IOException e) {
-                throw new IllegalArgumentException(error
+                throw new IllegalArgumentException(error 
                         + "failed to get version of rt jar", e);
             }
         }
@@ -952,11 +962,11 @@ public class Config {
             if (!dir.exists()) {
                 throw new IllegalArgumentException(error + "no such path");
             }
-
+            
             if (!dir.isDirectory()) {
                 throw new IllegalArgumentException(error + "not a directory");
             }
-
+            
             File vmBinariesDir = new File(dir, "vm/target/binaries");
             if (!vmBinariesDir.exists() || !vmBinariesDir.isDirectory()) {
                 throw new IllegalArgumentException(error + "vm/target/binaries/ missing or invalid");
@@ -982,28 +992,28 @@ public class Config {
             return new Home(dir, binDir, vmBinariesDir, rtSource);
         }
     }
-
+    
     public static class Builder {
         final Config config;
 
         Builder(Config config) {
             this.config = config;
         }
-
+        
         public Builder() throws IOException {
             this.config = new Config();
         }
-
+        
         public Builder os(OS os) {
             config.os = os;
             return this;
         }
-
+        
         public Builder arch(Arch arch) {
             config.arch = arch;
             return this;
         }
-
+        
         public Builder clearClasspathEntries() {
             if (config.classpath != null) {
                 config.classpath.clear();
@@ -1018,7 +1028,7 @@ public class Config {
             config.classpath.add(f);
             return this;
         }
-
+        
         public Builder clearBootClasspathEntries() {
             if (config.bootclasspath != null) {
                 config.bootclasspath.clear();
@@ -1033,7 +1043,7 @@ public class Config {
             config.bootclasspath.add(f);
             return this;
         }
-
+        
         public Builder mainJar(File f) {
             config.mainJar = f;
             return this;
@@ -1078,12 +1088,12 @@ public class Config {
             config.useDebugLibs = b;
             return this;
         }
-
+        
         public Builder dumpIntermediates(boolean b) {
             config.dumpIntermediates = b;
             return this;
         }
-
+        
         public Builder skipRuntimeLib(boolean b) {
             config.skipRuntimeLib = b;
             return this;
@@ -1098,17 +1108,17 @@ public class Config {
             config.skipInstall = b;
             return this;
         }
-
+        
         public Builder useDynamicJni(boolean b) {
             config.useDynamicJni = b;
             return this;
         }
-
+        
         public Builder threads(int threads) {
             config.threads = threads;
             return this;
         }
-
+        
         public Builder mainClass(String mainClass) {
             config.mainClass = mainClass;
             return this;
@@ -1118,7 +1128,7 @@ public class Config {
             config.tmpDir = tmpDir;
             return this;
         }
-
+        
         public Builder logger(Logger logger) {
             config.logger = logger;
             return this;
@@ -1153,7 +1163,7 @@ public class Config {
             config.exportedSymbols.add(symbol);
             return this;
         }
-
+        
         public Builder clearLibs() {
             if (config.libs != null) {
                 config.libs.clear();
@@ -1168,14 +1178,14 @@ public class Config {
             config.libs.add(lib);
             return this;
         }
-
+        
         public Builder clearFrameworks() {
             if (config.frameworks != null) {
                 config.frameworks.clear();
             }
             return this;
         }
-
+        
         public Builder addFramework(String framework) {
             if (config.frameworks == null) {
                 config.frameworks = new ArrayList<String>();
@@ -1190,7 +1200,7 @@ public class Config {
             }
             return this;
         }
-
+        
         public Builder addWeakFramework(String framework) {
             if (config.weakFrameworks == null) {
                 config.weakFrameworks = new ArrayList<String>();
@@ -1205,7 +1215,7 @@ public class Config {
             }
             return this;
         }
-
+        
         public Builder addFrameworkPath(File frameworkPath) {
             if (config.frameworkPaths == null) {
                 config.frameworkPaths = new ArrayList<File>();
@@ -1220,7 +1230,7 @@ public class Config {
             }
             return this;
         }
-
+        
         public Builder addResource(Resource resource) {
             if (config.resources == null) {
                 config.resources = new ArrayList<Resource>();
@@ -1234,16 +1244,21 @@ public class Config {
             return this;
         }
 
+        public Builder targetBinary(TargetBinary targetBinary) {
+            config.targetBinary = targetBinary;
+            return this;
+        }
+        
         public Builder clearProperties() {
             config.properties.clear();
             return this;
         }
-
+        
         public Builder addProperties(Properties properties) {
             config.properties.putAll(properties);
             return this;
         }
-
+        
         public Builder addProperties(File file) throws IOException {
             Properties props = new Properties();
             Reader reader = null;
@@ -1256,37 +1271,37 @@ public class Config {
             }
             return this;
         }
-
+        
         public Builder addProperty(String name, String value) {
             config.properties.put(name, value);
             return this;
         }
-
+        
         public Builder cacerts(Cacerts cacerts) {
             config.cacerts = cacerts;
             return this;
         }
-
+        
         public Builder tools(Tools tools) {
             config.tools = tools;
             return this;
         }
-
+        
         public Builder iosSdkVersion(String sdkVersion) {
             config.iosSdkVersion = sdkVersion;
             return this;
         }
-
+        
         public Builder iosDeviceType(String deviceType) {
             config.iosDeviceType = deviceType;
             return this;
         }
-
+        
         public Builder iosInfoPList(File infoPList) {
             config.iosInfoPListFile = infoPList;
             return this;
         }
-
+        
         public Builder iosEntitlementsPList(File entitlementsPList) {
             config.iosEntitlementsPList = entitlementsPList;
             return this;
@@ -1296,7 +1311,7 @@ public class Config {
             config.iosResourceRulesPList = resourceRulesPList;
             return this;
         }
-
+        
         public Builder iosSignIdentity(SigningIdentity signIdentity) {
             config.iosSignIdentity = signIdentity;
             return this;
@@ -1323,12 +1338,17 @@ public class Config {
         }
 
         public void addPluginArgument(String argName) {
-            if (config.pluginArguments == null) {
+            if(config.pluginArguments == null) {
                 config.pluginArguments = new ArrayList<>();
             }
             config.pluginArguments.add(argName);
         }
-
+        
+        // CHFO TODO: Am I disobeying any rules by allowing config to be fetched?  All I want is the targetBinary.
+        public final Config getConfig() {
+            return config;
+        }        
+        
         public Config build() throws IOException {
             for (CompilerPlugin plugin : config.getCompilerPlugins()) {
                 plugin.beforeConfig(this, config);
@@ -1360,20 +1380,20 @@ public class Config {
             File localPropsFile = new File(basedir, "robovm.local.properties");
             File propsFile = new File(basedir, "robovm.properties");
             if (isTest && testPropsFile.exists()) {
-                config.logger.debug("Loading test RoboVM config properties file: "
+                config.logger.debug("Loading test RoboVM config properties file: " 
                         + testPropsFile.getAbsolutePath());
                 addProperties(testPropsFile);
             } else {
                 Properties props = new Properties();
                 if (propsFile.exists()) {
-                    config.logger.debug("Loading default RoboVM config properties file: "
+                    config.logger.debug("Loading default RoboVM config properties file: " 
                             + propsFile.getAbsolutePath());
                     try (Reader reader = new InputStreamReader(new FileInputStream(propsFile), "utf-8")) {
                         props.load(reader);
                     }
                 }
                 if (localPropsFile.exists()) {
-                    config.logger.debug("Loading local RoboVM config properties file: "
+                    config.logger.debug("Loading local RoboVM config properties file: " 
                             + localPropsFile.getAbsolutePath());
                     try (Reader reader = new InputStreamReader(new FileInputStream(localPropsFile), "utf-8")) {
                         props.load(reader);
@@ -1412,11 +1432,11 @@ public class Config {
             File testConfigFile = new File(basedir, "robovm.test.xml");
             File configFile = new File(basedir, "robovm.xml");
             if (isTest && testConfigFile.exists()) {
-                config.logger.debug("Loading test RoboVM config file: "
+                config.logger.debug("Loading test RoboVM config file: " 
                         + testConfigFile.getAbsolutePath());
                 read(testConfigFile);
             } else if (configFile.exists()) {
-                config.logger.debug("Loading default RoboVM config file: "
+                config.logger.debug("Loading default RoboVM config file: " 
                         + configFile.getAbsolutePath());
                 read(configFile);
             }
@@ -1431,7 +1451,7 @@ public class Config {
                 IOUtils.closeQuietly(reader);
             }
         }
-
+        
         public void read(Reader reader, File wd) throws IOException {
             try {
                 Serializer serializer = createSerializer(wd);
@@ -1454,7 +1474,7 @@ public class Config {
                 config.roots = null;
             }
         }
-
+        
         public void write(File file) throws IOException {
             Writer writer = null;
             try {
@@ -1464,7 +1484,7 @@ public class Config {
                 IOUtils.closeQuietly(writer);
             }
         }
-
+        
         public void write(Writer writer, File wd) throws IOException {
             try {
                 Serializer serializer = createSerializer(wd);
@@ -1480,23 +1500,24 @@ public class Config {
 
         private Serializer createSerializer(final File wd) throws Exception {
             RelativeFileConverter fileConverter = new RelativeFileConverter(wd);
-
+            
             Serializer resourceSerializer = new Persister(
-                    new RegistryStrategy(new Registry().bind(File.class, fileConverter)),
+                    new RegistryStrategy(new Registry().bind(File.class, fileConverter)), 
                     new PlatformFilter(config.properties), new Format(2));
-
+            
             Registry registry = new Registry();
             RegistryStrategy registryStrategy = new RegistryStrategy(registry);
-            Serializer serializer = new Persister(registryStrategy,
+            Serializer serializer = new Persister(registryStrategy, 
                     new PlatformFilter(config.properties), new Format(2));
+
 
             registry.bind(File.class, fileConverter);
             registry.bind(Lib.class, new RelativeLibConverter(fileConverter));
             registry.bind(Resource.class, new ResourceConverter(fileConverter, resourceSerializer));
-
+            
             return serializer;
         }
-
+        
         /**
          * Fetches the {@link PluginArgument}s of all registered plugins for
          * parsing.
@@ -1524,11 +1545,11 @@ public class Config {
             this.value = value;
             this.force = force;
         }
-
+        
         public String getValue() {
             return value;
         }
-
+        
         public boolean isForce() {
             return force;
         }
@@ -1572,7 +1593,7 @@ public class Config {
             return true;
         }
     }
-
+    
     private static final class RelativeLibConverter implements Converter<Lib> {
         private final RelativeFileConverter fileConverter;
 
@@ -1609,10 +1630,10 @@ public class Config {
             }
         }
     }
-
+    
     private static final class RelativeFileConverter implements Converter<File> {
         private final String wdPrefix;
-
+        
         public RelativeFileConverter(File wd) {
             if (wd.isFile()) {
                 wd = wd.getParentFile();
@@ -1623,7 +1644,7 @@ public class Config {
             }
             wdPrefix = prefix;
         }
-
+        
         File read(String value) {
             if (value == null) {
                 return null;
@@ -1634,7 +1655,7 @@ public class Config {
             }
             return file;
         }
-
+        
         @Override
         public File read(InputNode node) throws Exception {
             return read(node.getValue());
@@ -1657,7 +1678,7 @@ public class Config {
             }
         }
     }
-
+    
     private static final class ResourceConverter implements Converter<Resource> {
         private final RelativeFileConverter fileConverter;
         private final Serializer serializer;

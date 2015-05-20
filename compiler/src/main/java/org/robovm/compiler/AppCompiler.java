@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +54,7 @@ import org.robovm.compiler.clazz.Path;
 import org.robovm.compiler.config.Arch;
 import org.robovm.compiler.config.Config;
 import org.robovm.compiler.config.Config.TargetType;
+import org.robovm.compiler.config.Config.TargetBinary;
 import org.robovm.compiler.config.OS;
 import org.robovm.compiler.config.Resource;
 import org.robovm.compiler.log.ConsoleLogger;
@@ -229,6 +231,18 @@ public class AppCompiler {
                 }
             }
         }
+        
+        // TODO CHFO remove this debug.
+        // Note, these are the JAVA classes that we need to keep.
+        // These come from the exported symbols in the robovm.xml file.
+        // We also need to add the JNI* symbols to "keep" when linking.
+        {
+	        Iterator<Clazz> iter = classes.iterator();
+	        while (iter.hasNext()) {
+	        	Clazz c = iter.next();
+	        	config.getLogger().info( "About to compile class: " + c.getClassName() );
+	        }
+        }        
         return classes;
     }
 
@@ -401,6 +415,19 @@ public class AppCompiler {
         List<Arch> ipaArchs = new ArrayList<>();
         String dumpConfigFile = null;
         List<String> runArgs = new ArrayList<String>();
+        
+        // TODO: REMOVE!
+        //config.getLogger().debug("AppCompiler.java!!!!!");
+        System.out.println("AppCompiler.java!!!!!111!!!");
+        {
+        	String theArgs = new String();
+            for (String s : args) {
+            	theArgs += s + " ";
+            }
+            System.out.println(theArgs);
+        }
+        	
+        
         try {
             builder = new Config.Builder();
             Map<String, PluginArgument> pluginArguments = builder.fetchPluginArguments();
@@ -487,6 +514,9 @@ public class AppCompiler {
                 } else if ("-target".equals(args[i])) {
                     String s = args[++i];
                     builder.targetType("auto".equals(s) ? null : TargetType.valueOf(s));
+                } else if ("-binaryType".equals(args[i])) {
+                	String s = args[++i];
+                    builder.targetBinary("auto".equals(s) ? null : TargetBinary.valueOf(s));
                 } else if ("-forcelinkclasses".equals(args[i])) {
                     for (String p : args[++i].split(":")) {
                         p = p.replace('#', '*');
@@ -582,7 +612,8 @@ public class AppCompiler {
             }
 
             builder.logger(new ConsoleLogger(verbose));
-            builder.skipInstall(run);
+            
+            builder.skipInstall(run || (builder.getConfig().getTargetBinary() == TargetBinary.dynamic_lib) );
 
             if (dumpConfigFile != null) {
                 if (dumpConfigFile.equals("-")) {
@@ -598,6 +629,10 @@ public class AppCompiler {
                 return;
             }
 
+            // CHFO TODO: Add to the command line ONLY when building a dynamic library.
+            builder.addExportedSymbol("JNI_CreateJavaVM");
+            builder.addExportedSymbol("JNI_GetCreatedJavaVMs");
+            
             compiler = new AppCompiler(builder.build());
 
             if (createIpa && (!(compiler.config.getTarget() instanceof IOSTarget)
