@@ -48,7 +48,7 @@ import org.robovm.apple.coremidi.*;
     public interface ParseListener {
         void onPropertyParsed(AudioFileStream audioFileStream, AudioFileStreamProperty property, AudioFileStreamMutablePropertyFlags flags);
 
-        void onPacketsParsed(int numberBytes, int numberPackets, BytePtr inputData, AudioStreamPacketDescription.AudioStreamPacketDescriptionPtr packetDescriptions);
+        void onPacketsParsed(int numberBytes, long inputData, AudioStreamPacketDescription[] packetDescriptions);
     }
     
     private static java.util.concurrent.atomic.AtomicLong callbackId = new java.util.concurrent.atomic.AtomicLong();
@@ -60,7 +60,7 @@ import org.robovm.apple.coremidi.*;
     static {
         try {
             cbParseProperty = AudioFileStream.class.getDeclaredMethod("cbParseProperty", Long.TYPE, AudioFileStream.class, AudioFileStreamProperty.class, AudioFileStreamMutablePropertyFlags.class);
-            cbParsePackets = AudioFileStream.class.getDeclaredMethod("cbParsePackets", Long.TYPE, Integer.TYPE, Integer.TYPE, BytePtr.class, AudioStreamPacketDescription.AudioStreamPacketDescriptionPtr.class);
+            cbParsePackets = AudioFileStream.class.getDeclaredMethod("cbParsePackets", Long.TYPE, Integer.TYPE, Integer.TYPE, Long.TYPE, AudioStreamPacketDescription.class);
         } catch (Throwable e) {
             throw new Error(e);
         }
@@ -81,9 +81,9 @@ import org.robovm.apple.coremidi.*;
         }
     }
     @Callback
-    private static void cbParsePackets(@Pointer long clientData, int numberBytes, int numberPackets, BytePtr inputData, AudioStreamPacketDescription.AudioStreamPacketDescriptionPtr packetDescriptions) {
+    private static void cbParsePackets(@Pointer long clientData, int numberBytes, int numberPackets, @Pointer long inputData, AudioStreamPacketDescription packetDescriptions) {
         synchronized (parseListeners) {
-            parseListeners.get(clientData).onPacketsParsed(numberBytes, numberPackets, inputData, packetDescriptions);
+            parseListeners.get(clientData).onPacketsParsed(numberBytes, inputData, packetDescriptions.toArray(numberPackets));
         }
     }
     
@@ -193,6 +193,12 @@ import org.robovm.apple.coremidi.*;
     public void setProperty(AudioFileStreamProperty id, double value) throws OSStatusException {
         setProperty(id, new DoublePtr(value));
     }
+    
+    /* Convenience methods for getting/setting properties */
+    public AudioStreamBasicDescription getDataFormat() throws OSStatusException {
+        return getProperty(AudioFileStreamProperty.DataFormat, AudioStreamBasicDescription.class);
+    }
+    /* End: Convenience methods for getting/setting properties */
     
     /**
      * @throws OSStatusException 

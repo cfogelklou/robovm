@@ -101,7 +101,7 @@ import org.robovm.apple.corelocation.*;
      * @since Available in iOS 5.0 and later.
      */
     @NotImplemented("accessibilityElementsHidden")
-    public boolean isAccessibilityElementsHidden() { return false; }
+    public boolean areAccessibilityElementsHidden() { return false; }
     /**
      * @since Available in iOS 5.0 and later.
      */
@@ -111,12 +111,12 @@ import org.robovm.apple.corelocation.*;
      * @since Available in iOS 5.0 and later.
      */
     @NotImplemented("accessibilityViewIsModal")
-    public boolean isAccessibilityViewIsModal() { return false; }
+    public boolean isAccessibilityViewModal() { return false; }
     /**
      * @since Available in iOS 5.0 and later.
      */
     @NotImplemented("setAccessibilityViewIsModal:")
-    public void setAccessibilityViewIsModal(boolean v) {}
+    public void setAccessibilityViewModal(boolean v) {}
     /**
      * @since Available in iOS 6.0 and later.
      */

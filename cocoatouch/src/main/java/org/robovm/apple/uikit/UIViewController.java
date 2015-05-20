@@ -417,6 +417,9 @@ import org.robovm.apple.mediaplayer.MPMoviePlayerViewController;
         org.robovm.apple.mediaplayer.UIViewControllerExtensions.dismissMoviePlayerViewController(this);
     }
     
+    
+    @Method(selector = "awakeFromNib")
+    public native void awakeFromNib();
     /*<methods>*/
     /**
      * @since Available in iOS 8.0 and later.
@@ -523,12 +526,12 @@ import org.robovm.apple.mediaplayer.MPMoviePlayerViewController;
      * @since Available in iOS 5.0 and later.
      */
     @Method(selector = "presentViewController:animated:completion:")
-    public native void presentViewController(UIViewController viewControllerToPresent, boolean flag, @Block Runnable completion);
+    public native void presentViewController(UIViewController viewControllerToPresent, boolean animated, @Block Runnable completion);
     /**
      * @since Available in iOS 5.0 and later.
      */
     @Method(selector = "dismissViewControllerAnimated:completion:")
-    public native void dismissViewController(boolean flag, @Block Runnable completion);
+    public native void dismissViewController(boolean animated, @Block Runnable completion);
     /**
      * @since Available in iOS 2.0 and later.
      * @deprecated Deprecated in iOS 6.0.

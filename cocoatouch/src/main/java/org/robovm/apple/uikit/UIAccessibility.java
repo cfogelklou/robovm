@@ -258,7 +258,7 @@ import org.robovm.apple.corelocation.*;
      * @since Available in iOS 5.0 and later.
      */
     @Property(selector = "accessibilityElementsHidden")
-    boolean isAccessibilityElementsHidden();
+    boolean areAccessibilityElementsHidden();
     /**
      * @since Available in iOS 5.0 and later.
      */
@@ -268,12 +268,12 @@ import org.robovm.apple.corelocation.*;
      * @since Available in iOS 5.0 and later.
      */
     @Property(selector = "accessibilityViewIsModal")
-    boolean isAccessibilityViewIsModal();
+    boolean isAccessibilityViewModal();
     /**
      * @since Available in iOS 5.0 and later.
      */
     @Property(selector = "setAccessibilityViewIsModal:")
-    void setAccessibilityViewIsModal(boolean v);
+    void setAccessibilityViewModal(boolean v);
     /**
      * @since Available in iOS 6.0 and later.
      */

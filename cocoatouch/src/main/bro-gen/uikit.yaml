@@ -186,6 +186,7 @@ categories:
         methods:
             '-init.*':
                 name: init
+                throws: NSErrorException
                 visibility: protected
                 return_type: '@Pointer long'
                 parameters:
@@ -197,7 +198,7 @@ categories:
                 name: getBoundingRect
             '-dataFromRange:documentAttributes:error:':
                 name: getData
-                visibility: protected
+                throws: NSErrorException
                 parameters:
                     dict:
                         type: NSAttributedStringDocumentAttributes
@@ -209,7 +210,7 @@ categories:
                 name: draw
             '-fileWrapperFromRange:documentAttributes:error:':
                 name: getFileWrapper
-                visibility: protected
+                throws: NSErrorException
                 parameters:
                     dict:
                         type: NSAttributedStringDocumentAttributes
@@ -240,28 +241,27 @@ categories:
                 name: fixAttributesInRange
             '-readFromData:options:documentAttributes:error:':
                 name: readFromData
+                throws: NSErrorException
                 visibility: protected
                 parameters:
                     opts:
                         type: NSAttributedStringDocumentAttributes
             '-readFromFileURL:options:documentAttributes:error:':
                 name: readFromFileURL
+                throws: NSErrorException
                 visibility: protected
                 parameters:
                     opts:
                         type: NSAttributedStringDocumentAttributes
     NSString: # DONE
+        owner_type: '@Pointer long'
         methods:
             '-boundingRectWithSize:options:attributes:context:':
                 name: getBoundingRect
                 parameters:
                     attributes:
                         type: 'NSDictionary<NSString, NSObject>'
-            '-drawAtPoint:forWidth:withFont:fontSize:lineBreakMode:baselineAdjustment:':
-                name: draw
-            '-drawAtPoint:forWidth:withFont:lineBreakMode:':
-                name: draw
-            '-drawAtPoint:forWidth:withFont:minFontSize:actualFontSize:lineBreakMode:baselineAdjustment:':
+            '-drawAtPoint:forWidth.*':
                 name: draw
             '-drawAtPoint:withAttributes:':
                 name: draw
@@ -275,11 +275,7 @@ categories:
                 parameters:
                     attrs:
                         type: 'NSDictionary<NSString, NSObject>'
-            '-drawInRect:withFont:':
-                name: draw
-            '-drawInRect:withFont:lineBreakMode:':
-                name: draw
-            '-drawInRect:withFont:lineBreakMode:alignment:':
+            '-drawInRect:withFont:.*':
                 name: draw
             '-drawWithRect:options:attributes:context:':
                 name: draw
@@ -291,15 +287,7 @@ categories:
                 parameters:
                     attrs:
                         type: 'NSDictionary<NSString, NSObject>'
-            '-sizeWithFont:':
-                name: getSize
-            '-sizeWithFont:constrainedToSize:':
-                name: getSize
-            '-sizeWithFont:constrainedToSize:lineBreakMode:':
-                name: getSize
-            '-sizeWithFont:forWidth:lineBreakMode:':
-                name: getSize
-            '-sizeWithFont:minFontSize:actualFontSize:forWidth:lineBreakMode:':
+            '-sizeWithFont.*':
                 name: getSize
     NSValue: # DONE
         methods:
@@ -355,7 +343,7 @@ classes:
                 name: stopProvidingItem
             '+writePlaceholderAtURL:withMetadata:error:':
                 name: writePlaceholder
-                visibility: protected # throws NSErrorException
+                throws: NSErrorException
                 parameters:
                     metadata:
                         type: NSURLProperties
@@ -1210,7 +1198,7 @@ classes:
             '-fileAttributesToWriteToURL:forSaveOperation:error:':
                 name: getFileAttributesToWrite
                 return_type: NSFileAttributes
-                visibility: protected # throws NSErrorException
+                throws: NSErrorException
             '-fileNameExtensionForType:saveOperation:':
                 name: getFileNameExtension
             '-openWithCompletionHandler:':
@@ -1219,7 +1207,7 @@ classes:
                 name: performAsynchronousFileAccess
             '-readFromURL:error:':
                 name: read
-                visibility: protected # throws NSErrorException
+                throws: NSErrorException
             '-revertToContentsOfURL:completionHandler:':
                 name: revert
             '-saveToURL:forSaveOperation:completionHandler:':
@@ -1228,23 +1216,23 @@ classes:
                 name: updateChangeCount
             '-loadFromContents:ofType:error:':
                 trim_after_first_colon: true
-                visibility: protected # throws NSErrorException
+                throws: NSErrorException
             '-contentsForType:error:':
                 name: getContentsForType
-                visibility: protected # throws NSErrorException
+                throws: NSErrorException
             '-updateChangeCount:':
                 trim_after_first_colon: true
             '-changeCountTokenForSaveOperation:':
                 name: getChangeCountToken
             '-writeContents:andAttributes:safelyToURL:forSaveOperation:error:':
                 trim_after_first_colon: true
-                visibility: protected # throws NSErrorException
+                throws: NSErrorException
                 parameters:
                     additionalFileAttributes:
                         type: NSFileAttributes
             '-writeContents:toURL:forSaveOperation:originalContentsURL:error:':
                 trim_after_first_colon: true
-                visibility: protected # throws NSErrorException
+                throws: NSErrorException
             '-handleError:userInteractionPermitted:':
                 trim_after_first_colon: true
             '-finishedHandlingError:recovered:':
@@ -1507,6 +1495,7 @@ classes:
             '-setAngle:magnitude:':
                 trim_after_first_colon: true
     UIImage: # DONE
+        protocols: [UIAccessibility, UIAccessibilityIdentification]
         properties:
             'images':
                 type: NSArray<UIImage>
@@ -1666,10 +1655,10 @@ classes:
                 name: getPersistentStoreName
             '-additionalContentForURL:error:':
                 name: getAdditionalContent
-                visibility: protected # throw NSErrorException
+                throws: NSErrorException
             '-configurePersistentStoreCoordinatorForURL:ofType:modelConfiguration:storeOptions:error:':
                 name: configurePersistentStoreCoordinator
-                visibility: protected # throw NSErrorException
+                throws: NSErrorException
                 parameters:
                     storeOptions:
                         type: NSPersistentStoreOptions
@@ -1677,10 +1666,10 @@ classes:
                 name: getPersistentStoreType
             '-readAdditionalContentFromURL:error:':
                 name: readAdditionalContent
-                visibility: protected # throw NSErrorException
+                throws: NSErrorException
             '-writeAdditionalContent:toURL:originalContentsURL:error:':
                 name: writeAdditionalContent
-                visibility: protected # throw NSErrorException
+                throws: NSErrorException
     UIMarkupTextPrintFormatter: # DONE
         methods:
             '-init.*':
@@ -2124,6 +2113,7 @@ classes:
             '-init':
                 exclude: true
     UIResponder: # DONE
+        protocols: [UIAccessibility]
         properties:
             'keyCommands':
                 type: NSArray<UIKeyCommand>
@@ -2909,6 +2899,9 @@ classes:
                 name: dismissModalViewController
             '-dismissViewControllerAnimated:completion:':
                 name: dismissViewController
+                parameters:
+                    flag:
+                        name: animated
             '-performSegueWithIdentifier:sender:':
                 name: performSegue
             '-transitionFromViewController:toViewController:duration:options:animations:completion:':
@@ -2952,6 +2945,9 @@ classes:
                 trim_after_first_colon: true
             '-presentViewController:animated:completion:':
                 trim_after_first_colon: true
+                parameters:
+                    flag:
+                        name: animated
             '-setEditing:animated:':
                 trim_after_first_colon: true
             '-setToolbarItems:animated:':
@@ -3841,18 +3837,23 @@ protocols:
         methods:
             '-textField:shouldChangeCharactersInRange:replacementString:':
                 name: shouldChangeCharacters
+                default: true
             '-textFieldDidBeginEditing:':
                 name: didBeginEditing
             '-textFieldDidEndEditing:':
                 name: didEndEditing
             '-textFieldShouldBeginEditing:':
                 name: shouldBeginEditing
+                default: true
             '-textFieldShouldClear:':
                 name: shouldClear
+                default: true
             '-textFieldShouldEndEditing:':
                 name: shouldEndEditing
+                default: true
             '-textFieldShouldReturn:':
                 name: shouldReturn
+                default: true
     UITextInput: # DONE
         properties:
             'markedTextStyle':
@@ -4054,6 +4055,7 @@ protocols:
                 name: didFailLoad
             '-webView:shouldStartLoadWithRequest:navigationType:':
                 name: shouldStartLoad
+                default: true
             '-webViewDidFinishLoad:':
                 name: didFinishLoad
             '-webViewDidStartLoad:':
@@ -4064,6 +4066,11 @@ protocols:
         properties:
             'isAccessibilityElement':
                 name: accessibilityElement
+            'accessibilityElementsHidden':
+                name: accessibilityElementsHidden
+                getter: areAccessibilityElementsHidden
+            'accessibilityViewIsModal':
+                name: accessibilityViewModal
     UIAccessibilityAction: # DONE
         properties:
             'accessibilityCustomActions':

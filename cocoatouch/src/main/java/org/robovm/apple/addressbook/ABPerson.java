@@ -40,7 +40,7 @@ import org.robovm.apple.corefoundation.*;
     public static class AsListMarshaler {
         @MarshalsPointer
         public static List<ABPerson> toObject(Class<? extends CFType> cls, long handle, long flags) {
-            CFArray o = (CFArray) CFType.Marshaler.toObject(cls, handle, flags);
+            CFArray o = (CFArray) CFType.Marshaler.toObject(CFArray.class, handle, flags);
             if (o == null) {
                 return null;
             }
@@ -251,7 +251,7 @@ import org.robovm.apple.corefoundation.*;
         }
         return this;
     }
-    public int addEmailAddress(ABPersonEmailAddress emailAddress) {
+    public int addEmailAddress(ABPersonEmailAddress emailAddress) throws NSErrorException {
         if (emailAddress == null) throw new NullPointerException("emailAddress");
         ABMultiValue val = getValue(ABPersonProperty.Email, ABMultiValue.class);
         ABMutableMultiValue mutable;
@@ -264,7 +264,7 @@ import org.robovm.apple.corefoundation.*;
         setValue(ABPersonProperty.Email, mutable);
         return result;
     }
-    public boolean removeEmailAddress(int id) {
+    public boolean removeEmailAddress(int id) throws NSErrorException {
         ABMultiValue val = getValue(ABPersonProperty.Email, ABMultiValue.class);
         if (val != null) {
             ABMutableMultiValue mutable = ABMutableMultiValue.create(val);
@@ -347,7 +347,7 @@ import org.robovm.apple.corefoundation.*;
         }
         return this;
     }
-    public int addAddress(ABPersonAddress address) {
+    public int addAddress(ABPersonAddress address) throws NSErrorException {
         if (address == null) throw new NullPointerException("address");
         ABMultiValue val = getValue(ABPersonProperty.Address, ABMultiValue.class);
         ABMutableMultiValue mutable;
@@ -360,7 +360,7 @@ import org.robovm.apple.corefoundation.*;
         setValue(ABPersonProperty.Address, mutable);
         return result;
     }
-    public boolean removeAddress(int id) {
+    public boolean removeAddress(int id) throws NSErrorException {
         ABMultiValue val = getValue(ABPersonProperty.Address, ABMultiValue.class);
         if (val != null) {
             ABMutableMultiValue mutable = ABMutableMultiValue.create(val);
@@ -430,7 +430,7 @@ import org.robovm.apple.corefoundation.*;
         }
         return this;
     }
-    public int addPhoneNumber(ABPersonPhoneNumber phoneNumber) {
+    public int addPhoneNumber(ABPersonPhoneNumber phoneNumber) throws NSErrorException {
         if (phoneNumber == null) throw new NullPointerException("phoneNumber");
         ABMultiValue val = getValue(ABPersonProperty.Phone, ABMultiValue.class);
         ABMutableMultiValue mutable;
@@ -443,7 +443,7 @@ import org.robovm.apple.corefoundation.*;
         setValue(ABPersonProperty.Phone, mutable);
         return result;
     }
-    public boolean removePhoneNumber(int id) {
+    public boolean removePhoneNumber(int id) throws NSErrorException {
         ABMultiValue val = getValue(ABPersonProperty.Phone, ABMultiValue.class);
         if (val != null) {
             ABMutableMultiValue mutable = ABMutableMultiValue.create(val);
@@ -477,7 +477,7 @@ import org.robovm.apple.corefoundation.*;
         }
         return this;
     }
-    public int addInstantMessageAccount(ABPersonInstantMessageAccount instantMessageAccount) {
+    public int addInstantMessageAccount(ABPersonInstantMessageAccount instantMessageAccount) throws NSErrorException {
         if (instantMessageAccount == null) throw new NullPointerException("instantMessageAccount");
         ABMultiValue val = getValue(ABPersonProperty.InstantMessage, ABMultiValue.class);
         ABMutableMultiValue mutable;
@@ -490,7 +490,7 @@ import org.robovm.apple.corefoundation.*;
         setValue(ABPersonProperty.InstantMessage, mutable);
         return result;
     }
-    public boolean removeInstantMessageAccount(int id) {
+    public boolean removeInstantMessageAccount(int id) throws NSErrorException {
         ABMultiValue val = getValue(ABPersonProperty.InstantMessage, ABMultiValue.class);
         if (val != null) {
             ABMutableMultiValue mutable = ABMutableMultiValue.create(val);
@@ -524,7 +524,7 @@ import org.robovm.apple.corefoundation.*;
         }
         return this;
     }
-    public int addSocialProfile(ABPersonSocialProfile socialProfile) {
+    public int addSocialProfile(ABPersonSocialProfile socialProfile) throws NSErrorException {
         if (socialProfile == null) throw new NullPointerException("socialProfile");
         ABMultiValue val = getValue(ABPersonProperty.SocialProfile, ABMultiValue.class);
         ABMutableMultiValue mutable;
@@ -537,7 +537,7 @@ import org.robovm.apple.corefoundation.*;
         setValue(ABPersonProperty.SocialProfile, mutable);
         return result;
     }
-    public boolean removeSocialProfile(int id) {
+    public boolean removeSocialProfile(int id) throws NSErrorException {
         ABMultiValue val = getValue(ABPersonProperty.SocialProfile, ABMultiValue.class);
         if (val != null) {
             ABMutableMultiValue mutable = ABMutableMultiValue.create(val);
@@ -571,7 +571,7 @@ import org.robovm.apple.corefoundation.*;
         }
         return this;
     }
-    public int addURL(ABPersonURL url) {
+    public int addURL(ABPersonURL url) throws NSErrorException {
         if (url == null) throw new NullPointerException("url");
         ABMultiValue val = getValue(ABPersonProperty.URL, ABMultiValue.class);
         ABMutableMultiValue mutable;
@@ -584,7 +584,7 @@ import org.robovm.apple.corefoundation.*;
         setValue(ABPersonProperty.URL, mutable);
         return result;
     }
-    public boolean removeURL(int id) {
+    public boolean removeURL(int id) throws NSErrorException {
         ABMultiValue val = getValue(ABPersonProperty.URL, ABMultiValue.class);
         if (val != null) {
             ABMutableMultiValue mutable = ABMutableMultiValue.create(val);
@@ -618,7 +618,7 @@ import org.robovm.apple.corefoundation.*;
         }
         return this;
     }
-    public int addRelatedName(ABPersonRelatedName relatedName) {
+    public int addRelatedName(ABPersonRelatedName relatedName) throws NSErrorException {
         if (relatedName == null) throw new NullPointerException("relatedName");
         ABMultiValue val = getValue(ABPersonProperty.RelatedNames, ABMultiValue.class);
         ABMutableMultiValue mutable;
@@ -631,7 +631,7 @@ import org.robovm.apple.corefoundation.*;
         setValue(ABPersonProperty.RelatedNames, mutable);
         return result;
     }
-    public boolean removeRelatedName(int id) {
+    public boolean removeRelatedName(int id) throws NSErrorException {
         ABMultiValue val = getValue(ABPersonProperty.RelatedNames, ABMultiValue.class);
         if (val != null) {
             ABMutableMultiValue mutable = ABMutableMultiValue.create(val);
