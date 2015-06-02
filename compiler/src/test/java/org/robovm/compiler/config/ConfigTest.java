@@ -158,7 +158,7 @@ public class ConfigTest {
         builder.iosResourceRulesPList(new File(tmp, "resourcerules.plist"));
         builder.targetType(TargetType.ios);
         // CHFO TODO add test for dynamic_lib
-        builder.targetBinary(TargetBinary.executable);
+        // builder.targetBinary(TargetBinary.executable);
         
         StringWriter out = new StringWriter();
         builder.write(out, wd);
