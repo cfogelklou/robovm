@@ -134,7 +134,7 @@ int bcmain(int argc, char* argv[]) {
 
     initOptions();
     {
-        fprintf(stderr, "Chris Fogelklou's Own Build Number SIX took %d params!!!\n", argc);
+        fprintf(stderr, "Anders's Own Build Number SIX took %d params!!!\n", argc);
         int i;
         for (i = 0; i < argc; i++) {
             fprintf(stderr, "p%d = %s\n", i, argv[i]);
