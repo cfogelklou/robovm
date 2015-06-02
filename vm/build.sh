@@ -25,7 +25,6 @@ EOF
   exit $1
 }
 
-SHARED_LIBRARY=1
 
 while [ "${1:0:2}" = '--' ]; do
   NAME=${1%%=*}
