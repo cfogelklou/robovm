@@ -28,7 +28,15 @@
 
 #else	// defined(_MSC_VER)
 
-#define	FORCE_INLINE __attribute__((always_inline))
+#if defined(__linux__)
+//-----------------------------------------------------------------------------
+// For use with -fPIC on Linux, sometimes these functions cannot be
+// inlined, so use inline to ensure that compilation is OK even without
+// inlining.
+#define FORCE_INLINE inline
+#else
+#define FORCE_INLINE __attribute__((always_inline))
+#endif
 
 FORCE_INLINE uint32_t rotl32 ( uint32_t x, int8_t r )
 {
