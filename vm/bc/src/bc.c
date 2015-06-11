@@ -163,12 +163,10 @@ int bcmain(int argc, char* argv[]) {
     return result;
 }
 
-#if 1
 //__attribute__ ((weak)) main;
 int __attribute__ ((weak)) main(int argc, char* argv[]) {
     bcmain( argc, argv );
 }
-#endif
 
 static ClassInfoHeader** getClassInfosBase(void* hash) {
     uint32_t size = ((uint32_t*) hash)[1];
@@ -1449,6 +1447,8 @@ __attribute__((visibility("default")))
 jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
 
     initOptions();
+
+    fprintf(stderr, "June 11, 2015\n");
 
     JavaVMInitArgs *vm_args = (JavaVMInitArgs *) pvm_args;
     fprintf(stderr, "JNI_CreateJavaVM(p_vm=0x%x, p_env=0x%x, pvm_args=0x%x)\n", (unsigned int)p_vm, (unsigned int)p_env, (unsigned int)pvm_args);
