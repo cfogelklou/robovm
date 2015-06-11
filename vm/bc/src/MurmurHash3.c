@@ -28,9 +28,9 @@
 
 #else	// defined(_MSC_VER)
 
-#if defined(__linux__) && defined(__LP64__)
+#if defined(__linux__)
 //-----------------------------------------------------------------------------
-// For use with -fPIC on Linux 64-bit, sometimes these functions cannot be
+// For use with -fPIC on Linux, sometimes these functions cannot be
 // inlined, so use inline to ensure that compilation is OK even without
 // inlining.
 #define FORCE_INLINE inline
