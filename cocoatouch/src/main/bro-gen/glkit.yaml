@@ -1,5 +1,5 @@
 package: org.robovm.apple.glkit
-include: [corefoundation.yaml, coregraphics.yaml, foundation.yaml, opengles.yaml, uikit.yaml, dispatch.yaml]
+include: [foundation.yaml, corefoundation.yaml, coregraphics.yaml, opengles.yaml, uikit.yaml, dispatch.yaml]
 library: GLKit
 framework: GLKit
 clang_args: ['-x', 'objective-c']
@@ -26,11 +26,13 @@ enums:
 classes:
     GLKTextureLoaderError:
         extends: NSError
+        annotations: ['@StronglyLinked']
 
     # Opaque types
     _GLKMatrixStack:
         name: GLKMatrixStack
         extends: CFType
+        annotations: ['@WeaklyLinked']
 
     # Structs
     GLKMatrix2: {}
@@ -65,16 +67,19 @@ classes:
                 name: init
             '-textureWithContentsOf(File|URL).*':
                 name: loadTexture
+                annotations: ['@WeaklyLinked']
                 parameters:
                     options:
                         type: GLKTextureLoaderOptions
             '-textureWith(ContentsOfData|CGImage).*':
                 name: createTexture
+                annotations: ['@WeaklyLinked']
                 parameters:
                     options:
                         type: GLKTextureLoaderOptions
             '-cubeMapWithContentsOfFiles:options:queue:completionHandler:':
                 name: loadCubeMap
+                annotations: ['@WeaklyLinked']
                 parameters:
                     paths:
                         type: List<String>
@@ -83,6 +88,7 @@ classes:
                         type: GLKTextureLoaderOptions
             '-cubeMapWithContentsOf(File|URL).*':
                 name: loadCubeMap
+                annotations: ['@WeaklyLinked']
                 parameters:
                     options:
                         type: GLKTextureLoaderOptions

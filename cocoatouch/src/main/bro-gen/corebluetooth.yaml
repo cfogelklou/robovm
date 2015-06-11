@@ -23,8 +23,10 @@ enums:
 classes:
     CBError:
         extends: NSError
+        annotations: ['@StronglyLinked']
     CBATTError:
         extends: NSError
+        annotations: ['@StronglyLinked']
 
     CBATTRequest: {} # DONE
     CBAttribute: {} # DONE
@@ -33,16 +35,20 @@ classes:
         methods:
             '-initWithDelegate:queue:':
                 name: init
+                annotations: ['@WeaklyLinked']
             '-initWithDelegate:queue:options:':
                 name: init
+                annotations: ['@WeaklyLinked']
                 parameters:
                     options:
                         type: CBCentralManagerOptions
             '-retrievePeripherals:':
                 trim_after_first_colon: true
+                annotations: ['@WeaklyLinked']
                 parameters:
                     peripheralUUIDs:
-                        type: '@org.robovm.rt.bro.annotation.Marshaler(NSArray.AsListMarshaler.class) List<CFUUID>'
+                        type: List<CFUUID>
+                        marshaler: NSArray.AsListMarshaler
             '-retrievePeripheralsWithIdentifiers:':
                 name: retrievePeripheralsWithId
                 return_type: NSArray<CBPeripheral>
@@ -102,7 +108,10 @@ classes:
         methods:
             '-initWithType:primary:':
                 name: init
-    CBPeer: {} # DONE
+    CBPeer: # DONE
+        properties:
+            'UUID':
+                annotations: ['@WeaklyLinked']
     CBPeripheral: # DONE
         properties:
             'isConnected':
@@ -144,8 +153,10 @@ classes:
         methods:
             '-initWithDelegate:queue:':
                 name: init
+                annotations: ['@WeaklyLinked']
             '-initWithDelegate:queue:options:':
                 name: init
+                annotations: ['@WeaklyLinked']
                 parameters:
                     options:
                         type: CBPeripheralManagerOptions
@@ -183,6 +194,7 @@ classes:
                 name: create
             '+UUIDWithCFUUID:':
                 name: create
+                annotations: ['@WeaklyLinked']
             '+UUIDWithNSUUID:':
                 name: create
 

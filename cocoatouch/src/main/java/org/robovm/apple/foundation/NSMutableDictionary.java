@@ -23,11 +23,13 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.uikit.*;
+import org.robovm.apple.coretext.*;
 import org.robovm.apple.coreanimation.*;
 import org.robovm.apple.coredata.*;
 import org.robovm.apple.coregraphics.*;
@@ -92,11 +94,15 @@ import org.robovm.apple.dispatch.*;
     
     @Override
     public V remove(Object key) {
-        if (!(key instanceof NSObject)) {
-            return null;
-        }
+        if (key == null) throw new IllegalArgumentException("key cannot be null");
+        
         V oldValue = get(key);
-        removeObject((NSObject) key);
+        if (key instanceof NSObject) {
+            removeObject((NSObject) key);
+        } else {
+            String strKey = String.valueOf(key);
+            removeObjectForKey$(NSString.create(NSString.getChars(strKey), strKey.length()));
+        }
         return oldValue;
     }
     
@@ -130,6 +136,54 @@ import org.robovm.apple.dispatch.*;
     protected static native NSMutableDictionary<?, ?> read(String path);
     @Method(selector = "dictionaryWithContentsOfURL:")
     public static native NSMutableDictionary<?, ?> read(NSURL url);
+    
+    public void put(Object key, boolean value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, byte value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, short value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, char value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, int value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, long value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, float value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, double value) {
+        putObject(key, NSNumber.valueOf(value));
+    }
+    public void put(Object key, String value) {
+        putObject(key, new NSString(value));
+    }
+    public void put(Object key, NSObject value) {
+        putObject(key, value);
+    }
+    
+    protected void putObject(Object key, NSObject value) {
+        if (key == null) throw new IllegalArgumentException("key cannot be null");
+        if (value == null) value = NSNull.getNull();
+        if (key instanceof NSObject) {
+            setObject$forKey$(value, ((NSObject)key).getHandle());
+        } else {
+            String strKey = String.valueOf(key);
+            setObject$forKey$(value, NSString.create(NSString.getChars(strKey), strKey.length()));
+        }
+    }
+    
+    @Method(selector = "setObject:forKey:")
+    private native void setObject$forKey$(NSObject object, @Pointer long key);
+    
+    @Method(selector = "removeObjectForKey:")
+    private native void removeObjectForKey$(@Pointer long key);
     
     /*<methods>*/
     @Method(selector = "removeObjectForKey:")

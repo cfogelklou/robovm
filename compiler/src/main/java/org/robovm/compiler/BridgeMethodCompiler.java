@@ -35,7 +35,9 @@ import org.robovm.compiler.Bro.MarshalerFlags;
 import org.robovm.compiler.MarshalerLookup.MarshalSite;
 import org.robovm.compiler.MarshalerLookup.MarshalerMethod;
 import org.robovm.compiler.MarshalerLookup.PointerMarshalerMethod;
+import org.robovm.compiler.config.Arch;
 import org.robovm.compiler.config.Config;
+import org.robovm.compiler.config.OS.Family;
 import org.robovm.compiler.llvm.Alloca;
 import org.robovm.compiler.llvm.Argument;
 import org.robovm.compiler.llvm.BasicBlockRef;
@@ -129,7 +131,7 @@ public class BridgeMethodCompiler extends BroMethodCompiler {
                 wrapperParamTypes.add(t);
             }
         }
-        FunctionType wrapperFnType = new FunctionType(wrapperReturnType, functionType.isVarargs(),
+        FunctionType wrapperFnType = new FunctionType(wrapperReturnType,
                 wrapperParamTypes.toArray(new Type[wrapperParamTypes.size()]));
         return new FunctionRef(name, wrapperFnType);
     }
@@ -234,7 +236,7 @@ public class BridgeMethodCompiler extends BroMethodCompiler {
         boolean optional = readBooleanElem(bridgeAnnotation, "optional", false);
         boolean useCWrapper = requiresCWrapper(method);
         
-        Function fn = FunctionBuilder.method(method);
+        Function fn = createMethodFunction(method);
         moduleBuilder.addFunction(fn);
         
         Type[] parameterTypes = fn.getType().getParameterTypes();
@@ -366,7 +368,7 @@ public class BridgeMethodCompiler extends BroMethodCompiler {
             FunctionType wrapperFnType = getBridgeFunctionType(method, dynamic, true);
             getCWrapperFunctions().add(createBridgeCWrapper(targetFnType.getReturnType(), 
                     targetFnType.getParameterTypes(), wrapperFnType.getParameterTypes(), wrapperName));
-            FunctionRef wrapperFnRef = getBridgeCWrapperRef(wrapperFnType, wrapperName);
+            FunctionRef wrapperFnRef = getBridgeCWrapperRef(targetFnType, wrapperName);
             moduleBuilder.addFunctionDeclaration(new FunctionDeclaration(wrapperFnRef));
             targetFnRef = wrapperFnRef;
         } else {

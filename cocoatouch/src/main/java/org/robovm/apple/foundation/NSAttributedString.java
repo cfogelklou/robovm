@@ -23,11 +23,13 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.uikit.*;
+import org.robovm.apple.coretext.*;
 import org.robovm.apple.coreanimation.*;
 import org.robovm.apple.coredata.*;
 import org.robovm.apple.coregraphics.*;
@@ -35,15 +37,13 @@ import org.robovm.apple.coremedia.*;
 import org.robovm.apple.security.*;
 import org.robovm.apple.dispatch.*;
 /*</imports>*/
-import org.robovm.apple.coretext.CTAttributedStringAttribute;
-import org.robovm.apple.coretext.CTAttributedStringAttributes;
 
 /*<javadoc>*/
 /**
  * @since Available in iOS 3.2 and later.
  */
 /*</javadoc>*/
-/*<annotations>*/@Library("Foundation") @NativeClass/*</annotations>*/
+/*<annotations>*/@Library("Foundation") @NativeClass @WeaklyLinked/*</annotations>*/
 /*<visibility>*/public/*</visibility>*/ class /*<name>*/NSAttributedString/*</name>*/ 
     extends /*<extends>*/NSObject/*</extends>*/ 
     /*<implements>*//*</implements>*/ {
@@ -95,72 +95,83 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
         }
         return equalsTo((NSAttributedString) obj);
     }
-    
+    @WeaklyLinked
     public NSObject getAttribute(String name, @MachineSizedUInt long location, NSRange range) {
         if (name == null) {
             throw new NullPointerException("name");
         }
         return getAttribute(new NSString(name), location, range);
     }
+    @WeaklyLinked
     public NSObject getAttribute(NSAttributedStringAttribute attribute, @MachineSizedUInt long location, NSRange range) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
         }
         return getAttribute(attribute.value(), location, range);
     }
+    @WeaklyLinked
     public NSObject getAttribute(CMTextMarkupAttribute attribute, @MachineSizedUInt long location, NSRange range) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
         }
         return getAttribute(attribute.value().as(NSString.class), location, range);
     }
+    @WeaklyLinked
     public NSObject getAttribute(CTAttributedStringAttribute attribute, @MachineSizedUInt long location, NSRange range) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
         }
         return getAttribute(attribute.value().as(NSString.class), location, range);
     }
-    
+    @WeaklyLinked
     public NSObject getAttribute(String name, @MachineSizedUInt long location, NSRange range, @ByVal NSRange rangeLimit) {
         if (name == null) {
             throw new NullPointerException("name");
         }
         return getAttribute(new NSString(name), location, range, rangeLimit);
     }
+    @WeaklyLinked
     public NSObject getAttribute(NSAttributedStringAttribute attribute, @MachineSizedUInt long location, NSRange range, @ByVal NSRange rangeLimit) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
         }
         return getAttribute(attribute.value(), location, range, rangeLimit);
     }
+    @WeaklyLinked
     public NSObject getAttribute(CMTextMarkupAttribute attribute, @MachineSizedUInt long location, NSRange range, @ByVal NSRange rangeLimit) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
         }
         return getAttribute(attribute.value().as(NSString.class), location, range, rangeLimit);
     }
+    @WeaklyLinked
     public NSObject getAttribute(CTAttributedStringAttribute attribute, @MachineSizedUInt long location, NSRange range, @ByVal NSRange rangeLimit) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
         }
         return getAttribute(attribute.value().as(NSString.class), location, range, rangeLimit);
     }
-
+    @WeaklyLinked
     public NSAttributedStringAttributes getAttributes(long location, NSRange range) {
         return new NSAttributedStringAttributes(getAttributesDictionary(location, range));
     }
+    @WeaklyLinked
     public NSAttributedStringAttributes getAttributes(long location, NSRange range, NSRange rangeLimit) {
         return new NSAttributedStringAttributes(getAttributesDictionary(location, range, rangeLimit));
     }
+    @WeaklyLinked
     public CMTextMarkupAttributes getTextMarkupAttributes(long location, NSRange range) {
         return new CMTextMarkupAttributes(getAttributesDictionary(location, range).as(CFDictionary.class));
     }
+    @WeaklyLinked
     public CMTextMarkupAttributes getTextMarkupAttributes(long location, NSRange range, NSRange rangeLimit) {
         return new CMTextMarkupAttributes(getAttributesDictionary(location, range, rangeLimit).as(CFDictionary.class));
     }
+    @WeaklyLinked
     public CTAttributedStringAttributes getCoreTextAttributes(long location, NSRange range) {
         return new CTAttributedStringAttributes(getAttributesDictionary(location, range).as(CFDictionary.class));
     }
+    @WeaklyLinked
     public CTAttributedStringAttributes getCoreTextAttributes(long location, NSRange range, NSRange rangeLimit) {
         return new CTAttributedStringAttributes(getAttributesDictionary(location, range, rangeLimit).as(CFDictionary.class));
     }
@@ -168,6 +179,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public void enumerateAttribute(String name, @ByVal NSRange enumerationRange, NSAttributedStringEnumerationOptions opts, final VoidBlock3<NSObject, NSRange, BooleanPtr> block) {
         if (name == null) {
             throw new NullPointerException("name");
@@ -177,6 +189,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public void enumerateAttribute(NSAttributedStringAttribute attribute, @ByVal NSRange enumerationRange, NSAttributedStringEnumerationOptions opts, final VoidBlock3<NSObject, NSRange, BooleanPtr> block) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
@@ -186,6 +199,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public void enumerateAttribute(CMTextMarkupAttribute attribute, @ByVal NSRange enumerationRange, NSAttributedStringEnumerationOptions opts, final VoidBlock3<NSObject, NSRange, BooleanPtr> block) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
@@ -195,6 +209,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public void enumerateAttribute(CTAttributedStringAttribute attribute, @ByVal NSRange enumerationRange, NSAttributedStringEnumerationOptions opts, final VoidBlock3<NSObject, NSRange, BooleanPtr> block) {
         if (attribute == null) {
             throw new NullPointerException("attribute");
@@ -211,6 +226,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @since Available in iOS 7.0 and later.
      * @throws NSErrorException
      */
+    @WeaklyLinked
     public static NSAttributedString create(NSURL url, NSAttributedStringDocumentAttributes options) throws NSErrorException {
         return NSAttributedStringExtensions.createFromURL(url, options);
     }
@@ -222,6 +238,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @since Available in iOS 7.0 and later.
      * @throws NSErrorException
      */
+    @WeaklyLinked
     public static NSAttributedString create(NSData data, NSAttributedStringDocumentAttributes options) throws NSErrorException {
         return NSAttributedStringExtensions.createFromData(data, options);
     }
@@ -233,6 +250,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @since Available in iOS 7.0 and later.
      * @throws NSErrorException
      */
+    @WeaklyLinked
     public NSData getData(NSRange range, NSAttributedStringDocumentAttributes dict) throws NSErrorException {
         return NSAttributedStringExtensions.getData(this, range, dict);
     }
@@ -244,42 +262,49 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @since Available in iOS 7.0 and later.
      * @throws NSErrorException
      */
+    @WeaklyLinked
     public NSFileWrapper getFileWrapper(NSRange range, NSAttributedStringDocumentAttributes dict) throws NSErrorException {
         return NSAttributedStringExtensions.getFileWrapper(this, range, dict);
     }
     /**
      * @since Available in iOS 6.0 and later.
      */
+    @WeaklyLinked
     public CGSize getSize() {
         return NSAttributedStringExtensions.getSize(this);
     }
     /**
      * @since Available in iOS 6.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGPoint point) {
         NSAttributedStringExtensions.draw(this, point);
     }
     /**
      * @since Available in iOS 6.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect) {
         NSAttributedStringExtensions.draw(this, rect);
     }
     /**
      * @since Available in iOS 6.0 and later.
      */
+    @WeaklyLinked
     public void draw(@ByVal CGRect rect, NSStringDrawingOptions options, NSStringDrawingContext context) {
         NSAttributedStringExtensions.draw(this, rect, options, context);
     }
     /**
      * @since Available in iOS 6.0 and later.
      */
+    @WeaklyLinked
     public CGRect getBoundingRect(@ByVal CGSize size, NSStringDrawingOptions options, NSStringDrawingContext context) {
         return NSAttributedStringExtensions.getBoundingRect(this, size, options, context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static NSAttributedString create(NSTextAttachment attachment) {
         return NSAttributedStringExtensions.create(attachment);
     }

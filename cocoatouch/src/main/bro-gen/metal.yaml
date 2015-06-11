@@ -51,10 +51,13 @@ enums:
 classes:
     MTLCommandBufferError:
         extends: NSError
+        annotations: ['@StronglyLinked']
     MTLLibraryError:
         extends: NSError
+        annotations: ['@StronglyLinked']
     MTLRenderPipelineError:
         extends: NSError
+        annotations: ['@StronglyLinked']
 
     # Structs
     MTLClearColor: {} # DONE
@@ -310,6 +313,7 @@ protocols:
             '-newLibraryWithData:error:':
                 trim_after_first_colon: true
                 throws: NSErrorException
+                annotations: ['@WeaklyLinked']
                 parameters:
                     data:
                         type: DispatchData

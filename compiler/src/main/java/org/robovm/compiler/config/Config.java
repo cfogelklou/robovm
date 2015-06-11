@@ -47,6 +47,7 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.robovm.compiler.CompilerException;
+import org.robovm.compiler.DependencyGraph;
 import org.robovm.compiler.ITable;
 import org.robovm.compiler.MarshalerLookup;
 import org.robovm.compiler.VTable;
@@ -54,6 +55,7 @@ import org.robovm.compiler.Version;
 import org.robovm.compiler.clazz.Clazz;
 import org.robovm.compiler.clazz.Clazzes;
 import org.robovm.compiler.clazz.Path;
+import org.robovm.compiler.config.OS.Family;
 import org.robovm.compiler.config.tools.Tools;
 import org.robovm.compiler.llvm.DataLayout;
 import org.robovm.compiler.log.Logger;
@@ -114,6 +116,10 @@ public class Config {
         executable, dynamic_lib, static_lib 
     }; // TODO CHFO: extension?
     
+    public enum TreeShakerMode {
+        none, conservative, aggressive
+    };
+
     @Element(required = false)
     private File installDir = null;
     @Element(required = false)
@@ -158,6 +164,8 @@ public class Config {
     private TargetType targetType;
     @Element(required = false, name = "targetExec")
     private TargetBinary targetBinary;
+    @Element(required = false, name = "treeShaker")
+    private TreeShakerMode treeShakerMode;
     
     @Element(required = false)
     private String iosSdkVersion;
@@ -211,6 +219,7 @@ public class Config {
     private transient DataLayout dataLayout;
     private transient MarshalerLookup marshalerLookup;
     private transient Config configBeforeBuild;
+    private transient DependencyGraph dependencyGraph;
 
     protected Config() throws IOException {
         // Add standard plugins
@@ -331,6 +340,10 @@ public class Config {
     
     public void addResourcesPath(Path path) {
         resourcesPaths.add(path);
+    }
+    
+    public DependencyGraph getDependencyGraph() {
+        return dependencyGraph;
     }
     
     public File getTmpDir() {
@@ -460,6 +473,10 @@ public class Config {
         return targetBinary;
     }
     
+    public TreeShakerMode getTreeShakerMode() {
+        return treeShakerMode == null ? TreeShakerMode.none : treeShakerMode;
+    }
+
     public String getIosSdkVersion() {
         return iosSdkVersion;
     }
@@ -821,6 +838,17 @@ public class Config {
         osArchCacheDir = new File(archDir, debug ? "debug" : "release");
         osArchCacheDir.mkdirs();
 
+        if (treeShakerMode != null && treeShakerMode != TreeShakerMode.none 
+                && os.getFamily() == Family.darwin && arch == Arch.x86) {
+
+            logger.warn("Tree shaking is not supported when building "
+                    + "for OS X/iOS x86 32-bit due to a bug in Xcode's linker. No tree "
+                    + "shaking will be performed. Run in 64-bit mode instead to "
+                    + "use tree shaking.");
+            treeShakerMode = TreeShakerMode.none;
+        }
+        dependencyGraph = new DependencyGraph(getTreeShakerMode());
+
         this.clazzes = new Clazzes(this, realBootclasspath, classpath);        
 
         mergeConfigsFromClasspath();
@@ -1131,6 +1159,11 @@ public class Config {
         
         public Builder logger(Logger logger) {
             config.logger = logger;
+            return this;
+        }
+
+        public Builder treeShakerMode(TreeShakerMode treeShakerMode) {
+            config.treeShakerMode = treeShakerMode;
             return this;
         }
 

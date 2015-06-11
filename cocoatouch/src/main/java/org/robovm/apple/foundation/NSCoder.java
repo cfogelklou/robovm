@@ -23,11 +23,13 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.uikit.*;
+import org.robovm.apple.coretext.*;
 import org.robovm.apple.coreanimation.*;
 import org.robovm.apple.coredata.*;
 import org.robovm.apple.coregraphics.*;
@@ -70,46 +72,57 @@ import org.robovm.apple.dispatch.*;
     /*<members>*//*</members>*/
     
     /* UIKit extensions */
-    
+    @WeaklyLinked
     public void encodeCGPoint(String key, CGPoint point) {
         org.robovm.apple.uikit.NSCoderExtensions.encodeCGPoint(this, point, key);
     }
+    @WeaklyLinked
     public void encodeCGSize(String key, CGSize size) {
         org.robovm.apple.uikit.NSCoderExtensions.encodeCGSize(this, size, key);
     }
+    @WeaklyLinked
     public void encodeCGRect(String key, CGRect rect) {
         org.robovm.apple.uikit.NSCoderExtensions.encodeCGRect(this, rect, key);
     }
+    @WeaklyLinked
     public void encodeCGAffineTransform(String key, CGAffineTransform transform) {
         org.robovm.apple.uikit.NSCoderExtensions.encodeCGAffineTransform(this, transform, key);
     }
+    @WeaklyLinked
     public void encodeUIEdgeInsets(String key, UIEdgeInsets insets) {
         org.robovm.apple.uikit.NSCoderExtensions.encodeUIEdgeInsets(this, insets, key);
     }
     /**
      * @since Available in iOS 5.0 and later.
      */
+    @WeaklyLinked
     public void encodeUIOffset(String key, UIOffset offset) {
         org.robovm.apple.uikit.NSCoderExtensions.encodeUIOffset(this, offset, key);
     }
+    @WeaklyLinked
     public CGPoint decodeCGPoint(String key) {
         return org.robovm.apple.uikit.NSCoderExtensions.decodeCGPoint(this, key);
     }
+    @WeaklyLinked
     public CGSize decodeCGSize(String key) {
         return org.robovm.apple.uikit.NSCoderExtensions.decodeCGSize(this, key);
     }
+    @WeaklyLinked
     public CGRect decodeCGRect(String key) {
         return org.robovm.apple.uikit.NSCoderExtensions.decodeCGRect(this, key);
     }
+    @WeaklyLinked
     public CGAffineTransform decodeCGAffineTransform(String key) {
         return org.robovm.apple.uikit.NSCoderExtensions.decodeCGAffineTransform(this, key);
     }
+    @WeaklyLinked
     public UIEdgeInsets decodeUIEdgeInsets(String key) {
         return org.robovm.apple.uikit.NSCoderExtensions.decodeUIEdgeInsets(this, key);
     }
     /**
      * @since Available in iOS 5.0 and later.
      */
+    @WeaklyLinked
     public UIOffset decodeUIOffset(String key) {
         return org.robovm.apple.uikit.NSCoderExtensions.decodeUIOffset(this, key);
     }
@@ -118,36 +131,42 @@ import org.robovm.apple.dispatch.*;
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public void encodeCMTime(String key, CMTime time) {
         org.robovm.apple.avfoundation.NSCoderExtensions.encodeCMTime(this, time, key);
     }
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public CMTime decodeCMTime(String key) {
         return org.robovm.apple.avfoundation.NSCoderExtensions.decodeCMTime(this, key);
     }
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public void encodeCMTimeRange(String key, CMTimeRange timeRange) {
         org.robovm.apple.avfoundation.NSCoderExtensions.encodeCMTimeRange(this, timeRange, key);
     }
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public CMTimeRange decodeCMTimeRange(String key) {
         return org.robovm.apple.avfoundation.NSCoderExtensions.decodeCMTimeRange(this, key);
     }
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public void encodeCMTimeMapping(String key, CMTimeMapping timeMapping) {
         org.robovm.apple.avfoundation.NSCoderExtensions.encodeCMTimeMapping(this, timeMapping, key);
     }
     /**
      * @since Available in iOS 4.0 and later.
      */
+    @WeaklyLinked
     public CMTimeMapping decodeCMTimeMapping(String key) {
         return org.robovm.apple.avfoundation.NSCoderExtensions.decodeCMTimeMapping(this, key);
     }

@@ -23,6 +23,7 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
@@ -66,6 +67,7 @@ import org.robovm.apple.dispatch.*;
     public static native CBUUID create(String theString);
     @Method(selector = "UUIDWithData:")
     public static native CBUUID create(NSData theData);
+    @WeaklyLinked
     @Method(selector = "UUIDWithCFUUID:")
     public static native CBUUID create(CFUUID theUUID);
     /**

@@ -23,11 +23,13 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.uikit.*;
+import org.robovm.apple.coretext.*;
 import org.robovm.apple.coreanimation.*;
 import org.robovm.apple.coredata.*;
 import org.robovm.apple.coregraphics.*;
@@ -374,10 +376,7 @@ import org.robovm.apple.dispatch.*;
     }
     @SuppressWarnings("unchecked")
     public V get(Object key) {
-        if (!(key instanceof NSObject)) {
-            return null;
-        }
-        return (V) getObject((K) key);
+        return (V) getObjectForKey(key);
     }
     public boolean isEmpty() {
         return getCount() == 0;
@@ -443,6 +442,141 @@ import org.robovm.apple.dispatch.*;
         }
         return new NSDictionary<NSString, V>(dictionary);
     }
+    
+    public boolean getBoolean(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.booleanValue();
+    }
+    public byte getByte(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.byteValue();
+    }
+    public short getShort(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.shortValue();
+    }
+    public char getChar(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.charValue();
+    }
+    public int getInt(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.intValue();
+    }
+    public long getLong(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.longValue();
+    }
+    public float getFloat(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.floatValue();
+    }
+    public double getDouble(Object key) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.doubleValue();
+    }
+    public String getString(Object key) {
+        NSString val = (NSString)getObjectForKey(key);
+        if (val == null) throw new NullPointerException("Value not found for key: " + key);
+        return val.toString();
+    }
+    
+    public boolean getBoolean(Object key, boolean defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.booleanValue();
+    }
+    public byte getByte(Object key, byte defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.byteValue();
+    }
+    public short getShort(Object key, short defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.shortValue();
+    }
+    public char getChar(Object key, char defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.charValue();
+    }
+    public int getInt(Object key, int defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.intValue();
+    }
+    public long getLong(Object key, long defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.longValue();
+    }
+    public float getFloat(Object key, float defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.floatValue();
+    }
+    public double getDouble(Object key, double defaultValue) {
+        NSNumber val = (NSNumber)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.doubleValue();
+    }
+    public String getString(Object key, String defaultValue) {
+        NSString val = (NSString)getObjectForKey(key);
+        if (val == null) return defaultValue;
+        return val.toString();
+    }
+    
+    public void put(Object key, boolean value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, byte value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, short value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, char value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, int value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, long value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, float value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, double value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, String value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    public void put(Object key, NSObject value) {
+        throw new UnsupportedOperationException("NSDictionary is immutable");
+    }
+    
+    protected NSObject getObjectForKey(Object key) {
+        if (key == null) throw new IllegalArgumentException("key cannot be null");
+        if (key instanceof NSObject) {
+            return objectForKey$(((NSObject)key).getHandle());
+        } else {
+            String strKey = String.valueOf(key);
+            return objectForKey$(NSString.create(NSString.getChars(strKey), strKey.length()));
+        }
+    }
+    @Method(selector = "objectForKey:")
+    private native NSObject objectForKey$(@Pointer long key);
     
     /*<methods>*/
     @Method(selector = "objectForKey:")

@@ -23,6 +23,7 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
@@ -34,6 +35,7 @@ import org.robovm.apple.coreimage.*;
 import org.robovm.apple.coretext.*;
 import org.robovm.apple.corelocation.*;
 /*</imports>*/
+import org.robovm.rt.annotation.WeaklyLinked;
 
 /*<javadoc>*/
 /**
@@ -58,6 +60,7 @@ import org.robovm.apple.corelocation.*;
     /*<members>*//*</members>*/
     
     /* NotificationCenter extensions */
+    @WeaklyLinked
     public static UIVibrancyEffect createNotificationCenterEffect() {
         return org.robovm.apple.notificationcenter.UIVibrancyEffectExtensions.createNotificationCenterEffect();
     }

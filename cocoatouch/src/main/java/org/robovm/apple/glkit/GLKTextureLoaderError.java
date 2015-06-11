@@ -23,12 +23,13 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
+import org.robovm.apple.foundation.*;
 import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.coregraphics.*;
-import org.robovm.apple.foundation.*;
 import org.robovm.apple.opengles.*;
 import org.robovm.apple.uikit.*;
 import org.robovm.apple.dispatch.*;
@@ -36,7 +37,7 @@ import org.robovm.apple.dispatch.*;
 
 /*<javadoc>*/
 /*</javadoc>*/
-/*<annotations>*/@Library("GLKit")/*</annotations>*/
+/*<annotations>*/@Library("GLKit") @StronglyLinked/*</annotations>*/
 /*<visibility>*/public/*</visibility>*/ class /*<name>*/GLKTextureLoaderError/*</name>*/ 
     extends /*<extends>*/NSError/*</extends>*/ 
     /*<implements>*//*</implements>*/ {
@@ -50,6 +51,16 @@ import org.robovm.apple.dispatch.*;
     /*<constants>*//*</constants>*/
     /*<properties>*//*</properties>*/
     /*<members>*//*</members>*/
+    private NSErrorUserInfo userInfo;
+    
+    /* Convenience methods */
+    private NSErrorUserInfo getCachedUserInfo() {
+        if (userInfo == null) {
+            userInfo = getUserInfo();
+        }
+        return userInfo;
+    }
+    
     @Override
     public GLKTextureLoaderErrorCode getErrorCode () {
         GLKTextureLoaderErrorCode code = null;
@@ -66,9 +77,8 @@ import org.robovm.apple.dispatch.*;
      * @since Available in iOS 5.0 and later.
      */
     public String getError() {
-        NSErrorUserInfo data = getUserInfo();
-        if (data.contains(GLKErrorUserInfoKey.Error)) {
-            NSString val = (NSString) data.get(GLKErrorUserInfoKey.Error);
+        if (getCachedUserInfo().has(GLKErrorUserInfoKey.Error)) {
+            NSString val = (NSString) getCachedUserInfo().get(GLKErrorUserInfoKey.Error);
             return val.toString();
         }
         return null;
@@ -77,9 +87,8 @@ import org.robovm.apple.dispatch.*;
      * @since Available in iOS 5.0 and later.
      */
     public long getGLError() {
-        NSErrorUserInfo data = getUserInfo();
-        if (data.contains(GLKErrorUserInfoKey.GLError)) {
-            NSNumber val = (NSNumber) data.get(GLKErrorUserInfoKey.GLError);
+        if (getCachedUserInfo().has(GLKErrorUserInfoKey.GLError)) {
+            NSNumber val = (NSNumber) getCachedUserInfo().get(GLKErrorUserInfoKey.GLError);
             return val.longValue();
         }
         return 0;

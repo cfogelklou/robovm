@@ -23,16 +23,21 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
-import org.robovm.apple.dispatch.*;
 import org.robovm.apple.foundation.*;
+import org.robovm.apple.dispatch.*;
+import org.robovm.apple.coreservices.*;
+import org.robovm.apple.coremedia.*;
+import org.robovm.apple.uikit.*;
+import org.robovm.apple.coretext.*;
 /*</imports>*/
 
 /*<javadoc>*/
 /*</javadoc>*/
-/*<annotations>*/@Library("CoreFoundation")/*</annotations>*/
+/*<annotations>*/@Library("CoreFoundation") @StronglyLinked/*</annotations>*/
 @Marshaler(/*<name>*/CFURLFileSystemProperty/*</name>*/.Marshaler.class)
 /*<visibility>*/public/*</visibility>*/ class /*<name>*/CFURLFileSystemProperty/*</name>*/ 
     extends /*<extends>*/GlobalValueEnumeration<CFString>/*</extends>*/
@@ -246,7 +251,7 @@ import org.robovm.apple.foundation.*;
     
     /*<methods>*//*</methods>*/
     
-    /*<annotations>*/@Library("CoreFoundation")/*</annotations>*/
+    /*<annotations>*/@Library("CoreFoundation") @StronglyLinked/*</annotations>*/
     public static class Values {
     	static { Bro.bind(Values.class); }
 

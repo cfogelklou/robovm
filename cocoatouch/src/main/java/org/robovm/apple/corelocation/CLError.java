@@ -23,6 +23,7 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
@@ -33,7 +34,7 @@ import org.robovm.apple.corebluetooth.*;
 
 /*<javadoc>*/
 /*</javadoc>*/
-/*<annotations>*/@Library("CoreLocation")/*</annotations>*/
+/*<annotations>*/@Library("CoreLocation") @StronglyLinked/*</annotations>*/
 /*<visibility>*/public/*</visibility>*/ class /*<name>*/CLError/*</name>*/ 
     extends /*<extends>*/NSError/*</extends>*/ 
     /*<implements>*//*</implements>*/ {
@@ -47,6 +48,16 @@ import org.robovm.apple.corebluetooth.*;
     /*<constants>*//*</constants>*/
     /*<properties>*//*</properties>*/
     /*<members>*//*</members>*/
+    private NSErrorUserInfo userInfo;
+    
+    /* Convenience methods */
+    private NSErrorUserInfo getCachedUserInfo() {
+        if (userInfo == null) {
+            userInfo = getUserInfo();
+        }
+        return userInfo;
+    }
+    
     @Override
     public CLErrorCode getErrorCode() {
         CLErrorCode code = null;
@@ -59,9 +70,8 @@ import org.robovm.apple.corebluetooth.*;
     }
     
     public CLRegion getAlternateRegion() {
-        NSErrorUserInfo userInfo = getUserInfo();
-        if (userInfo.contains(CLErrorUserInfoKey.AlternateRegion)) {
-            CLRegion val = (CLRegion)userInfo.get(CLErrorUserInfoKey.AlternateRegion);
+        if (getCachedUserInfo().has(CLErrorUserInfoKey.AlternateRegion)) {
+            CLRegion val = (CLRegion)getCachedUserInfo().get(CLErrorUserInfoKey.AlternateRegion);
             return val;
         }
         return null;

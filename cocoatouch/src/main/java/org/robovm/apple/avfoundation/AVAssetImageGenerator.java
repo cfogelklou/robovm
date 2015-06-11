@@ -23,19 +23,20 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.foundation.*;
+import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.dispatch.*;
 import org.robovm.apple.coreanimation.*;
-import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.coregraphics.*;
 import org.robovm.apple.coreaudio.*;
 import org.robovm.apple.coremedia.*;
 import org.robovm.apple.corevideo.*;
-import org.robovm.apple.audiotoolbox.*;
 import org.robovm.apple.mediatoolbox.*;
+import org.robovm.apple.audiotoolbox.*;
 import org.robovm.apple.audiounit.*;
 /*</imports>*/
 
@@ -109,12 +110,14 @@ import org.robovm.apple.audiounit.*;
     /*<methods>*/
     @Method(selector = "initWithAsset:")
     protected native @Pointer long init(AVAsset asset);
+    @WeaklyLinked
     public CGImage getCGImageAtTime(@ByVal CMTime requestedTime, CMTime actualTime) throws NSErrorException {
        NSError.NSErrorPtr ptr = new NSError.NSErrorPtr();
        CGImage result = getCGImageAtTime(requestedTime, actualTime, ptr);
        if (ptr.get() != null) { throw new NSErrorException(ptr.get()); }
        return result;
     }
+    @WeaklyLinked
     @Method(selector = "copyCGImageAtTime:actualTime:error:")
     private native @org.robovm.rt.bro.annotation.Marshaler(CFType.NoRetainMarshaler.class) CGImage getCGImageAtTime(@ByVal CMTime requestedTime, CMTime actualTime, NSError.NSErrorPtr outError);
     @Method(selector = "generateCGImagesAsynchronouslyForTimes:completionHandler:")

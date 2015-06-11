@@ -39,6 +39,7 @@ enums:
 classes:
     CKError:
         extends: NSError
+        annotations: ['@StronglyLinked']
 
     CKAsset: # DONE
         methods:
@@ -389,14 +390,16 @@ classes:
                         type: NSArray<CKNotificationID>
     CKModifyBadgeOperation: # DONE
         methods:
-            '-init':
-                exclude: true
             '-init.*':
                 name: init
     CKLocationSortDescriptor: # DONE
+        properties:
+            'relativeLocation':
+                annotations: ['@WeaklyLinked']
         methods:
-            '-init':
-                exclude: true
+            '-initWithKey:relativeLocation:':
+                name: init
+                annotations: ['@WeaklyLinked']
             '-init.*':
                 name: init
 

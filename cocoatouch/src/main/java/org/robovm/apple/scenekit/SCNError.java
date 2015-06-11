@@ -23,13 +23,14 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.foundation.*;
 import org.robovm.apple.uikit.*;
-import org.robovm.apple.coreanimation.*;
 import org.robovm.apple.coregraphics.*;
+import org.robovm.apple.coreanimation.*;
 import org.robovm.apple.dispatch.*;
 import org.robovm.apple.glkit.*;
 import org.robovm.apple.spritekit.*;
@@ -38,7 +39,7 @@ import org.robovm.apple.opengles.*;
 
 /*<javadoc>*/
 /*</javadoc>*/
-/*<annotations>*/@Library("SceneKit")/*</annotations>*/
+/*<annotations>*/@Library("SceneKit") @StronglyLinked/*</annotations>*/
 /*<visibility>*/public/*</visibility>*/ class /*<name>*/SCNError/*</name>*/ 
     extends /*<extends>*/NSError/*</extends>*/ 
     /*<implements>*//*</implements>*/ {
@@ -54,6 +55,16 @@ import org.robovm.apple.opengles.*;
     /*<constructors>*//*</constructors>*/
     /*<properties>*//*</properties>*/
     /*<members>*//*</members>*/
+    private NSErrorUserInfo userInfo;
+    
+    /* Convenience methods */
+    private NSErrorUserInfo getCachedUserInfo() {
+        if (userInfo == null) {
+            userInfo = getUserInfo();
+        }
+        return userInfo;
+    }
+    
     @Override
     public NSErrorCode getErrorCode() {
         NSErrorCode code = null;
@@ -71,9 +82,8 @@ import org.robovm.apple.opengles.*;
     
     @SuppressWarnings("unchecked")
     public SCNConsistencyErrorUserInfo getConsistencyError() {
-        NSErrorUserInfo data = getUserInfo();
-        if (data.contains(SCNErrorUserInfoKey.DetailedErrors)) {
-            NSDictionary<NSString, NSObject> val = (NSDictionary<NSString, NSObject>) data.get(SCNErrorUserInfoKey.DetailedErrors);
+        if (getCachedUserInfo().has(SCNErrorUserInfoKey.DetailedErrors)) {
+            NSDictionary<NSString, NSObject> val = (NSDictionary<NSString, NSObject>) getCachedUserInfo().get(SCNErrorUserInfoKey.DetailedErrors);
             return new SCNConsistencyErrorUserInfo(val);
         }
         return null;

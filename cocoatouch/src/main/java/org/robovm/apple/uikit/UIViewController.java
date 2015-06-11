@@ -23,6 +23,7 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
@@ -34,6 +35,7 @@ import org.robovm.apple.coreimage.*;
 import org.robovm.apple.coretext.*;
 import org.robovm.apple.corelocation.*;
 /*</imports>*/
+import org.robovm.rt.annotation.WeaklyLinked;
 import org.robovm.apple.iad.ADInterstitialPresentationPolicy;
 import org.robovm.apple.mediaplayer.MPMoviePlayerViewController;
 
@@ -352,75 +354,84 @@ import org.robovm.apple.mediaplayer.MPMoviePlayerViewController;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public ADInterstitialPresentationPolicy getInterstitialPresentationPolicy() {
         return org.robovm.apple.iad.UIViewControllerExtensions.getInterstitialPresentationPolicy(this);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void setInterstitialPresentationPolicy(ADInterstitialPresentationPolicy v) {
         org.robovm.apple.iad.UIViewControllerExtensions.setInterstitialPresentationPolicy(this, v);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public boolean isCanDisplayBannerAds() {
         return org.robovm.apple.iad.UIViewControllerExtensions.canDisplayBannerAds(this);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void setCanDisplayBannerAds(boolean v) {
         org.robovm.apple.iad.UIViewControllerExtensions.setCanDisplayBannerAds(this, v);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public UIView getOriginalContentView() {
         return org.robovm.apple.iad.UIViewControllerExtensions.getOriginalContentView(this);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public boolean isPresentingFullScreenAd() {
         return org.robovm.apple.iad.UIViewControllerExtensions.isPresentingFullScreenAd(this);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public boolean isDisplayingBannerAd() {
         return org.robovm.apple.iad.UIViewControllerExtensions.isDisplayingBannerAd(this);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public boolean requestInterstitialAdPresentation() {
         return org.robovm.apple.iad.UIViewControllerExtensions.requestInterstitialAdPresentation(this);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public boolean shouldPresentInterstitialAd() {
         return org.robovm.apple.iad.UIViewControllerExtensions.shouldPresentInterstitialAd(this);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void prepareInterstitialAds() {
         org.robovm.apple.iad.UIViewControllerExtensions.prepareInterstitialAds();
     }
     
     /* MediaPlayer extensions */
+    @WeaklyLinked
     public void presentMoviePlayerViewController(MPMoviePlayerViewController moviePlayerViewController) {
         org.robovm.apple.mediaplayer.UIViewControllerExtensions.presentMoviePlayerViewController(this, moviePlayerViewController);
     }
+    @WeaklyLinked
     public void dismissMoviePlayerViewController() {
         org.robovm.apple.mediaplayer.UIViewControllerExtensions.dismissMoviePlayerViewController(this);
     }
     
-    
-    @Method(selector = "awakeFromNib")
-    public native void awakeFromNib();
     /*<methods>*/
     /**
      * @since Available in iOS 8.0 and later.

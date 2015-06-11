@@ -23,16 +23,18 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
-import org.robovm.apple.coregraphics.*;
 import org.robovm.apple.foundation.*;
+import org.robovm.apple.coregraphics.*;
 import org.robovm.apple.coreimage.*;
 import org.robovm.apple.coretext.*;
 import org.robovm.apple.opengles.*;
 import org.robovm.apple.metal.*;
 /*</imports>*/
+import org.robovm.rt.annotation.WeaklyLinked;
 
 /*<javadoc>*/
 
@@ -48,30 +50,39 @@ import org.robovm.apple.metal.*;
     /*<constructors>*/
     public CAAnimation() {}
     protected CAAnimation(SkipInit skipInit) { super(skipInit); }
+    public CAAnimation(NSCoder aDecoder) { super((SkipInit) null); initObject(init(aDecoder)); }
     /*</constructors>*/
     
     /* SceneKit extensions */
+    @WeaklyLinked
     public boolean usesSceneTimeBase() {
         return org.robovm.apple.scenekit.CAAnimationExtensions.usesSceneTimeBase(this);
     }
+    @WeaklyLinked
     public void setUsesSceneTimeBase(boolean v) {
         org.robovm.apple.scenekit.CAAnimationExtensions.setUsesSceneTimeBase(this, v);
     }
+    @WeaklyLinked
     public @MachineSizedFloat double getFadeInDuration() {
         return org.robovm.apple.scenekit.CAAnimationExtensions.getFadeInDuration(this);
     }
+    @WeaklyLinked
     public void setFadeInDuration(@MachineSizedFloat double v) {
         org.robovm.apple.scenekit.CAAnimationExtensions.setFadeInDuration(this, v);
     }
+    @WeaklyLinked
     public @MachineSizedFloat double getFadeOutDuration() {
         return org.robovm.apple.scenekit.CAAnimationExtensions.getFadeOutDuration(this);
     }
+    @WeaklyLinked
     public void setFadeOutDuration(@MachineSizedFloat double v) {
         org.robovm.apple.scenekit.CAAnimationExtensions.setFadeOutDuration(this, v);
     }
+    @WeaklyLinked
     public NSArray<org.robovm.apple.scenekit.SCNAnimationEvent> getAnimationEvents() {
         return org.robovm.apple.scenekit.CAAnimationExtensions.getAnimationEvents(this);
     }
+    @WeaklyLinked
     public void setAnimationEvents(NSArray<org.robovm.apple.scenekit.SCNAnimationEvent> v) {
         org.robovm.apple.scenekit.CAAnimationExtensions.setAnimationEvents(this, v);
     }
@@ -136,7 +147,9 @@ import org.robovm.apple.metal.*;
     @Method(selector = "defaultValueForKey:")
     public static native NSObject getDefaultValue(String key);
     @Method(selector = "encodeWithCoder:")
-    public native void encode(NSCoder aCoder);
+    public native void encode(NSCoder coder);
+    @Method(selector = "initWithCoder:")
+    protected native @Pointer long init(NSCoder aDecoder);
     @Method(selector = "runActionForKey:object:arguments:")
     public native void runAction(String event, NSObject anObject, @org.robovm.rt.bro.annotation.Marshaler(NSDictionary.AsStringMapMarshaler.class) Map<String, NSObject> dict);
     /*</methods>*/

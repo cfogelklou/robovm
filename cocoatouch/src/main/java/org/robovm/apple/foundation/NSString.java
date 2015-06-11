@@ -23,11 +23,13 @@ import org.robovm.objc.*;
 import org.robovm.objc.annotation.*;
 import org.robovm.objc.block.*;
 import org.robovm.rt.*;
+import org.robovm.rt.annotation.*;
 import org.robovm.rt.bro.*;
 import org.robovm.rt.bro.annotation.*;
 import org.robovm.rt.bro.ptr.*;
 import org.robovm.apple.corefoundation.*;
 import org.robovm.apple.uikit.*;
+import org.robovm.apple.coretext.*;
 import org.robovm.apple.coreanimation.*;
 import org.robovm.apple.coredata.*;
 import org.robovm.apple.coregraphics.*;
@@ -35,12 +37,13 @@ import org.robovm.apple.coremedia.*;
 import org.robovm.apple.security.*;
 import org.robovm.apple.dispatch.*;
 /*</imports>*/
+import org.robovm.rt.annotation.WeaklyLinked;
 import org.robovm.apple.coretext.CTAttributedStringAttributes;
 
 /*<javadoc>*/
 
 /*</javadoc>*/
-/*<annotations>*/@Library("Foundation") @NativeClass/*</annotations>*/
+/*<annotations>*/@Library("Foundation") @NativeClass @WeaklyLinked/*</annotations>*/
 /*<visibility>*/public/*</visibility>*/ class /*<name>*/NSString/*</name>*/ 
     extends /*<extends>*/NSObject/*</extends>*/ 
     /*<implements>*/implements NSPropertyList/*</implements>*/ {
@@ -118,7 +121,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /*</properties>*/
     /*<members>*//*</members>*/
 
-    private static long getChars(String s) {
+    protected static long getChars(String s) {
         int offset = VM.getInt(VM.getObjectAddress(s) + STRING_OFFSET_OFFSET);
         char[] value = (char[]) VM.getObject(VM.getObjectAddress(s) + STRING_VALUE_OFFSET);
         return VM.getArrayValuesAddress(value) + (offset << 1);
@@ -148,6 +151,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize getSize(UIFont font) {
         return NSStringExtensions.getSize(this.getHandle(), font);
     }
@@ -156,6 +160,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize getSize(UIFont font, @MachineSizedFloat double width, NSLineBreakMode lineBreakMode) {
         return NSStringExtensions.getSize(this.getHandle(), font, width, lineBreakMode);
     }
@@ -164,6 +169,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize draw(CGPoint point, UIFont font) {
         return NSStringExtensions.draw(this.getHandle(), point, font);
     }
@@ -172,6 +178,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize draw(CGPoint point, @MachineSizedFloat double width, UIFont font, NSLineBreakMode lineBreakMode) {
         return NSStringExtensions.draw(this.getHandle(), point, width, font, lineBreakMode);
     }
@@ -180,6 +187,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize getSize(UIFont font, @ByVal CGSize size) {
         return NSStringExtensions.getSize(this.getHandle(), font, size);
     }
@@ -188,6 +196,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize getSize(UIFont font, @ByVal CGSize size, NSLineBreakMode lineBreakMode) {
         return NSStringExtensions.getSize(this.getHandle(), font, size, lineBreakMode);
     }
@@ -196,6 +205,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize draw(@ByVal CGRect rect, UIFont font) {
         return NSStringExtensions.draw(this.getHandle(), rect, font);
     }
@@ -204,6 +214,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize draw(NSString thiz, @ByVal CGRect rect, UIFont font, NSLineBreakMode lineBreakMode) {
         return NSStringExtensions.draw(this.getHandle(), rect, font, lineBreakMode);
     }
@@ -212,6 +223,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize draw(CGRect rect, UIFont font, NSLineBreakMode lineBreakMode, NSTextAlignment alignment) {
         return NSStringExtensions.draw(this.getHandle(), rect, font, lineBreakMode, alignment);
     }
@@ -220,6 +232,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize getSize(UIFont font, @MachineSizedFloat double minFontSize, @MachineSizedFloat double width, NSLineBreakMode lineBreakMode) {
         return NSStringExtensions.getSize(this.getHandle(), font, minFontSize, null, width, lineBreakMode);
     }
@@ -228,18 +241,21 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
      * @deprecated Deprecated in iOS 7.0.
      */
     @Deprecated
+    @WeaklyLinked
     public CGSize draw(CGPoint point, @MachineSizedFloat double width, UIFont font, @MachineSizedFloat double fontSize, NSLineBreakMode lineBreakMode, UIBaselineAdjustment baselineAdjustment) {
         return NSStringExtensions.draw(this.getHandle(), point, width, font, fontSize, lineBreakMode, baselineAdjustment);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGSize getSize(NSDictionary<NSString, NSObject> attrs) {
         return NSStringExtensions.getSize(this.getHandle(), attrs);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGSize getSize(NSAttributedStringAttributes attrs) {
         if (attrs == null) {
             throw new NullPointerException("attrs");
@@ -249,6 +265,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGSize getSize(CMTextMarkupAttributes attrs) {
         if (attrs == null) {
             throw new NullPointerException("attrs");
@@ -258,6 +275,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGSize getSize(CTAttributedStringAttributes attrs) {
         if (attrs == null) {
             throw new NullPointerException("attrs");
@@ -267,24 +285,28 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGSize getSize(String str, NSDictionary<NSString, NSObject> attrs) {
         return NSStringExtensions.getSize(create(getChars(str), str.length()), attrs);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGSize getSize(String str, NSAttributedStringAttributes attrs) {
         return NSStringExtensions.getSize(create(getChars(str), str.length()), attrs.getDictionary());
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGSize getSize(String str, CMTextMarkupAttributes attrs) {
         return NSStringExtensions.getSize(create(getChars(str), str.length()), attrs.getDictionary().as(NSDictionary.class));
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGSize getSize(String str, CTAttributedStringAttributes attrs) {
         return NSStringExtensions.getSize(create(getChars(str), str.length()), attrs.getDictionary().as(NSDictionary.class));
     }
@@ -292,12 +314,14 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGPoint point, NSDictionary<NSString, NSObject> attrs) {
         NSStringExtensions.draw(this.getHandle(), point, attrs);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGPoint point, NSAttributedStringAttributes attrs) {
         if (attrs == null) {
             NSStringExtensions.draw(this.getHandle(), point, (NSDictionary<NSString, NSObject>)null);
@@ -308,6 +332,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGPoint point, CMTextMarkupAttributes attrs) {
         if (attrs == null) {
             NSStringExtensions.draw(this.getHandle(), point, (NSDictionary<NSString, NSObject>)null);
@@ -318,6 +343,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGPoint point, CTAttributedStringAttributes attrs) {
         if (attrs == null) {
             NSStringExtensions.draw(this.getHandle(), point, (NSDictionary<NSString, NSObject>)null);
@@ -328,24 +354,28 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGPoint point, NSDictionary<NSString, NSObject> attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), point, attrs);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGPoint point, NSAttributedStringAttributes attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), point, attrs.getDictionary());
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGPoint point, CMTextMarkupAttributes attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), point, attrs.getDictionary().as(NSDictionary.class));
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGPoint point, CTAttributedStringAttributes attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), point, attrs.getDictionary().as(NSDictionary.class));
     }
@@ -353,12 +383,14 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, NSDictionary<NSString, NSObject> attrs) {
         NSStringExtensions.draw(this.getHandle(), rect, attrs);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, NSAttributedStringAttributes attrs) {
         if (attrs == null) {
             NSStringExtensions.draw(this.getHandle(), rect, (NSDictionary<NSString, NSObject>)null);
@@ -369,6 +401,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, CMTextMarkupAttributes attrs) {
         if (attrs == null) {
             NSStringExtensions.draw(this.getHandle(), rect, (NSDictionary<NSString, NSObject>)null);
@@ -379,6 +412,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, CTAttributedStringAttributes attrs) {
         if (attrs == null) {
             NSStringExtensions.draw(this.getHandle(), rect, (NSDictionary<NSString, NSObject>)null);
@@ -389,24 +423,28 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, NSDictionary<NSString, NSObject> attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, attrs);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, NSAttributedStringAttributes attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, attrs.getDictionary());
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, CMTextMarkupAttributes attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, attrs.getDictionary().as(NSDictionary.class));
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, CTAttributedStringAttributes attrs) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, attrs.getDictionary().as(NSDictionary.class));
     }
@@ -414,12 +452,14 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, NSStringDrawingOptions options, NSDictionary<NSString, NSObject> attributes, NSStringDrawingContext context) {
         NSStringExtensions.draw(this.getHandle(), rect, options, attributes, context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, NSStringDrawingOptions options, NSAttributedStringAttributes attributes, NSStringDrawingContext context) {
         if (attributes == null) {
             NSStringExtensions.draw(this.getHandle(), rect, options, null, context);
@@ -430,6 +470,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, NSStringDrawingOptions options, CMTextMarkupAttributes attributes, NSStringDrawingContext context) {
         if (attributes == null) {
             NSStringExtensions.draw(this.getHandle(), rect, options, null, context);
@@ -440,6 +481,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public void draw(CGRect rect, NSStringDrawingOptions options, CTAttributedStringAttributes attributes, NSStringDrawingContext context) {
         if (attributes == null) {
             NSStringExtensions.draw(this.getHandle(), rect, options, null, context);
@@ -451,24 +493,28 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, NSStringDrawingOptions options, NSDictionary<NSString, NSObject> attributes, NSStringDrawingContext context) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, options, attributes, context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, NSStringDrawingOptions options, NSAttributedStringAttributes attributes, NSStringDrawingContext context) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, options, attributes.getDictionary(), context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, NSStringDrawingOptions options, CMTextMarkupAttributes attributes, NSStringDrawingContext context) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, options, attributes.getDictionary().as(NSDictionary.class), context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static void draw(String str, CGRect rect, NSStringDrawingOptions options, CTAttributedStringAttributes attributes, NSStringDrawingContext context) {
         NSStringExtensions.draw(create(getChars(str), str.length()), rect, options, attributes.getDictionary().as(NSDictionary.class), context);
     }
@@ -476,12 +522,14 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGRect getBoundingRect(CGSize size, NSStringDrawingOptions options, NSDictionary<NSString, NSObject> attributes, NSStringDrawingContext context) {
         return NSStringExtensions.getBoundingRect(this.getHandle(), size, options, attributes, context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGRect getBoundingRect(CGSize size, NSStringDrawingOptions options, NSAttributedStringAttributes attributes, NSStringDrawingContext context) {
         if (attributes == null) {
             return NSStringExtensions.getBoundingRect(this.getHandle(), size, options, null, context);
@@ -491,6 +539,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGRect getBoundingRect(CGSize size, NSStringDrawingOptions options, CMTextMarkupAttributes attributes, NSStringDrawingContext context) {
         if (attributes == null) {
             return NSStringExtensions.getBoundingRect(this.getHandle(), size, options, null, context);
@@ -500,6 +549,7 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public CGRect getBoundingRect(CGSize size, NSStringDrawingOptions options, CTAttributedStringAttributes attributes, NSStringDrawingContext context) {
         if (attributes == null) {
             return NSStringExtensions.getBoundingRect(this.getHandle(), size, options, null, context);
@@ -510,24 +560,28 @@ import org.robovm.apple.coretext.CTAttributedStringAttributes;
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGRect getBoundingRect(String str, CGSize size, NSStringDrawingOptions options, NSDictionary<NSString, NSObject> attributes, NSStringDrawingContext context) {
         return NSStringExtensions.getBoundingRect(create(getChars(str), str.length()), size, options, attributes, context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGRect getBoundingRect(String str, CGSize size, NSStringDrawingOptions options, NSAttributedStringAttributes attributes, NSStringDrawingContext context) {
         return NSStringExtensions.getBoundingRect(create(getChars(str), str.length()), size, options, attributes.getDictionary(), context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGRect getBoundingRect(String str, CGSize size, NSStringDrawingOptions options, CMTextMarkupAttributes attributes, NSStringDrawingContext context) {
         return NSStringExtensions.getBoundingRect(create(getChars(str), str.length()), size, options, attributes.getDictionary().as(NSDictionary.class), context);
     }
     /**
      * @since Available in iOS 7.0 and later.
      */
+    @WeaklyLinked
     public static CGRect getBoundingRect(String str, CGSize size, NSStringDrawingOptions options, CTAttributedStringAttributes attributes, NSStringDrawingContext context) {
         return NSStringExtensions.getBoundingRect(create(getChars(str), str.length()), size, options, attributes.getDictionary().as(NSDictionary.class), context);
     }

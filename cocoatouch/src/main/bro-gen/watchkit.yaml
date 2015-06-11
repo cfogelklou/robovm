@@ -18,6 +18,7 @@ enums:
 classes:
     WatchKitError:
         extends: NSError
+        annotations: ['@StronglyLinked']
     
     WKAccessibilityImageRegion: {} # DONE
     WKInterfaceController: # DONE
@@ -132,6 +133,9 @@ classes:
         methods:
             '-addAnnotation:.*':
                 trim_after_first_colon: true
+                annotations: ['@WeaklyLinked']
+            '-(setVisibleMapRect|setRegion):':
+                annotations: ['@WeaklyLinked']
     WKInterfaceSeparator: {} # DONE
     WKInterfaceSlider: {} # DONE
     WKInterfaceSwitch: {} # DONE
