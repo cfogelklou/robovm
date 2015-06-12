@@ -67,7 +67,7 @@ int main( void ) {
 	        assert( JNI_OK == res );
 
 	        /* invoke the Main.test method using the JNI */
-	        jclass cls = (*env)->FindClass(env, "HelloWorld");
+	        jclass cls = (*env)->FindClass(env, "TestLib");
 
 	        jmethodID mid = (*env)->GetStaticMethodID(env, cls, "hello", "([Ljava/lang/String;)V");
 
