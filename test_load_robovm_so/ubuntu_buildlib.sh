@@ -14,6 +14,7 @@ cd ..
 #Delete the executable and the library.
 rm -rf src_lib/classes
 mkdir src_lib/classes
+rm -rf HelloWorld
 rm -rf src_exe/classes
 mkdir src_exe/classes
 
@@ -24,14 +25,14 @@ javac -d src_lib/classes/ src_lib/TestLib.java
 javac -d src_exe/classes/ src_exe/HelloWorld.java
 
 #Use our debug compiler to build the test library.
-$ROBOVM_DEV_ROOT/bin/robovm -verbose -dump-intermediates -os linux -binaryType dynamic_lib -forcelinkclasses TestLib -skiprt -bcp $ROBOVM_DEV_ROOT/rt/target/classes:/robovm-rt/target/test-classes -cp $ROBOVM_DEV_ROOT/test_load_robovm_so/src_lib/classes TestLib 
+$ROBOVM_DEV_ROOT/bin/robovm -dump-intermediates -os linux -binaryType dynamic_lib -forcelinkclasses TestLib -skiprt -bcp $ROBOVM_DEV_ROOT/rt/target/classes:/robovm-rt/target/test-classes -cp $ROBOVM_DEV_ROOT/test_load_robovm_so/src_lib/classes TestLib 
 
 #Use our debug compiler to build the HelloWorld application.
-$ROBOVM_DEV_ROOT/bin/robovm -verbose -dump-intermediates -os linux -binaryType executable -forcelinkclasses HelloWorld -skiprt -bcp $ROBOVM_DEV_ROOT/rt/target/classes:/robovm-rt/target/test-classes -cp $ROBOVM_DEV_ROOT/test_load_robovm_so/src_exe/HelloWorld/classes HelloWorld
+$ROBOVM_DEV_ROOT/bin/robovm -dump-intermediates -os linux -binaryType executable -forcelinkclasses HelloWorld -skiprt -bcp $ROBOVM_DEV_ROOT/rt/target/classes:/robovm-rt/target/test-classes -cp $ROBOVM_DEV_ROOT/test_load_robovm_so/src_exe/classes HelloWorld
 
 #Run the  test library.
 ./Debug/test_load_robovm_so
 
 #Run HelloWorld.
-./src_exe/HelloWorld/HelloWorld -rvm:log=debug
+./HelloWorld/HelloWorld -rvm:log=debug
 

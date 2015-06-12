@@ -6,6 +6,7 @@ vm/build.sh
 vm/copy-binaries.sh
 
 cd test_load_robovm_so
+rm -rf HelloWorld
 rm -rf src_exe/classes
 mkdir src_exe/classes
 javac -d src_exe/classes/ src_exe/HelloWorld.java
