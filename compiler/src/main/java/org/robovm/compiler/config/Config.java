@@ -778,11 +778,17 @@ public class Config {
             mainClass = getMainClass(mainJar);
             classpath.add(mainJar);
         }
-
+        
         if (!skipLinking && executableName == null && mainClass == null && (forceLinkClasses == null || forceLinkClasses.size() == 0)) {
             throw new IllegalArgumentException("No target and no main class specified, and no classes force-linked into project.");
         }
 
+        if (!skipLinking && mainClass == null) {
+        	if ( forceLinkClasses != null && forceLinkClasses.size() != 0 ) {
+        		mainClass = forceLinkClasses.get(0);
+        	}
+        }
+        
         if (!skipLinking && classpath.isEmpty()) {
             throw new IllegalArgumentException("No classpath specified");
         }
