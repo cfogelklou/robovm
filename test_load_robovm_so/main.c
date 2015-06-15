@@ -33,25 +33,20 @@ int main( void ) {
 	        JavaVMInitArgs vm_args;
 	        JavaVMOption options[] = {
 	            {
-	                "-Djava.compiler=NONE",           /* disable JIT */
-	                NULL
-	            },
-	            {
-	                "-Djava.class.path=c:\\myclasses", /* user classes */
-	                NULL
-	            },
-	            {
-	                "-Djava.library.path=c:\\mylibs",  /* set native library path */
-	                NULL
-	            },
-	            {
 	                "-xrvm:log=debug",
 	                NULL
 	            },
 	            {
-	                "-verbose:jni",                   /* print JNI-related messages */
+	                "-xrvm:exepath=/home/appsupport/Projects/robovm/robovm/test_load_robovm_so/",
 	                NULL
-	            }
+	            },
+				/*
+	            {
+	                NULL,
+	                NULL
+	            },
+	            */
+
 	        };
 
 	        vm_args.version = JNI_VERSION_1_2;

@@ -175,6 +175,9 @@ static void parseArg(char* arg, Options* options) {
         property->key = key;
         property->value = s;
         DL_APPEND(options->properties, property);
+    } else if (startsWith(arg, "exepath=")) {
+        fprintf(stderr, "processing executable path.");
+        strncpy( options->executablePath, &arg[8], PATH_MAX);
     }
 }
 
@@ -186,7 +189,7 @@ jboolean rvmInitOptions(int argc, char* argv[], Options* options, jboolean ignor
         return FALSE;
     }
 
-    strcpy(options->executablePath, path);
+    strncpy(options->executablePath, path, PATH_MAX);
 
     jint i = strlen(path);
     while (i >= 0 && path[i] != '/') {
@@ -219,9 +222,10 @@ jboolean rvmInitOptions(int argc, char* argv[], Options* options, jboolean ignor
 
     jint firstJavaArg = 1;
     for (i = 1; i < argc; i++) {
-        if (startsWith(argv[i], "-rvm:")) {
+        if (argv[i] && (strlen(argv[i]) > 5) && startsWith(argv[i], "-rvm:")) {
             if (!ignoreRvmArgs) {
                 char* arg = &argv[i][5];
+                fprintf(stderr, "\n%d.)parseArg(%s)\n", i, arg);
                 parseArg(arg, options);
             }
             firstJavaArg++;
@@ -230,6 +234,7 @@ jboolean rvmInitOptions(int argc, char* argv[], Options* options, jboolean ignor
         }
     }
 
+    fprintf(stderr, "\nrvmInitOptions(7)\n");
     options->commandLineArgs = NULL;
     options->commandLineArgsCount = argc - firstJavaArg;
     if (options->commandLineArgsCount > 0) {

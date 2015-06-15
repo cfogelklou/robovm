@@ -19,9 +19,16 @@
 #include "MurmurHash3.h"
 #include "classinfo.h"
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h> // for _NSGetExecutablePath()
+#include <libgen.h>      // for dirname()
+#endif
+
 #define LOG_TAG "bc"
 
 #define ALLOC_NATIVE_FRAMES_SIZE 8
+
+static const int MAX_PATH = 1024;
 
 typedef struct {
     ClassInfoHeader* classInfoHeader;
@@ -131,18 +138,10 @@ static void initOptions() {
     options.listUserClasses = listUserClasses;
 }
 
+
 int bcmain(int argc, char* argv[]) {
 
     initOptions();
-    {
-        fprintf(stderr, "Anders's Own Build Number SIX took %d params!!!\n", argc);
-        int i;
-        for (i = 0; i < argc; i++) {
-            fprintf(stderr, "p%d = %s\n", i, argv[i]);
-        }
-    }
-
-    bc_options_dbg( &options, FALSE );
 
     if (!rvmInitOptions(argc, argv, &options, FALSE)) {
         fprintf(stderr, "rvmInitOptions(...) failed!\n");
@@ -1144,110 +1143,24 @@ jint JNI_GetDefaultJavaVMInitArgs(void* vm_args) {
     return JNI_OK;
 }
 
-/*
- Loads and initializes a Java VM. The current thread becomes the main thread.
- Sets the env argument to the JNI interface pointer of the main thread.
-
- As of JDK/JRE 1.2 , creation of multiple VMs in a single process is not supported.
- The second argument to JNI_CreateJavaVM is always a pointer to JNIEnv *, while
- the third argument is a pointer to a JavaVMInitArgs structure which uses option
- strings to encode arbitrary VM start up options:
-
- typedef struct JavaVMInitArgs {
- jint version;
-
- jint nOptions;
- JavaVMOption *options;
- jboolean ignoreUnrecognized;
- } JavaVMInitArgs;
-
- The version field must be set to at least JNI_VERSION_1_2. The options field is
- an array of the following type:
-
- typedef struct JavaVMOption {
- char *optionString;  // the option as a string in the default platform encoding
- void *extraInfo;
- } JavaVMOption;
-
- The size of the array is denoted by the nOptions field in JavaVMInitArgs. If
- ignoreUnrecognized is JNI_TRUE, JNI_CreateJavaVM ignore all unrecognized option
- strings that begin with "-X" or "_". If ignoreUnrecognized is JNI_FALSE,
- JNI_CreateJavaVM returns JNI_ERR as soon as it encounters any unrecognized
- option strings. All Java VMs must recognize the following set of standard options:
-
- optionString    meaning
- -D<name>=<value>    Set a system property
- -verbose[:class|gc|jni] Enable verbose output. The options can be followed
- by a comma-separated list of names indicating what kind of messages will
- be printed by the VM. For example, "-verbose:gc,class" instructs the VM
- to print GC and class loading related messages. Standard names include:
- gc, class, and jni. All nonstandard (VM-specific) names must begin with "X".
-
- vfprintf    extraInfo is a pointer to the vfprintf hook.
- exit    extraInfo is a pointer to the exit hook.
- abort   extraInfo is a pointer to the abort hook.
-
- In addition, each VM implementation may support its own set of non-standard option
- strings. Non-standard option names must begin with "-X" or an underscore ("_").
- For example, the JDK/JRE supports -Xms and -Xmx options to allow programmers specify
- the initial and maximum heap size. Options that begin with "-X" are accessible from
- the "java" command line.
-
- Here is the example code that creates a Java VM in the JDK/JRE:
-
- JavaVMInitArgs vm_args;
- JavaVMOption options[4];
-
- options[0].optionString = "-Djava.compiler=NONE";           // disable JIT
- options[1].optionString = "-Djava.class.path=c:\myclasses"; // user classes
- options[2].optionString = "-Djava.library.path=c:\mylibs";  // set native library path
- options[3].optionString = "-verbose:jni";                   // print JNI-related messages
-
- vm_args.version = JNI_VERSION_1_2;
- vm_args.options = options;
- vm_args.nOptions = 4;
- vm_args.ignoreUnrecognized = TRUE;
-
- Note that in the JDK/JRE, there is no longer any need to call
- JNI_GetDefaultJavaVMInitArgs.
-
- res = JNI_CreateJavaVM(&vm, (void **)&env, &vm_args);
- if (res < 0) ...
-
- LINKAGE:
- Exported from the native library that implements the Java virtual machine.
-
- PARAMETERS:
- p_vm: pointer to the location where the resulting VM structure will be placed.
-
- p_env: pointer to the location where the JNI interface pointer for the main thread will be placed.
-
- vm_args: Java VM initialization arguments.
-
- RETURNS:
- Returns JNI_OK on success; returns a suitable JNI error code (a negative number) on failure.
- */
-#if (defined(MACOS) || defined(DARWIN)) && (!defined(IOS))
-#include <dlfcn.h>
-char *getExecutablePath(char * const buf, const int maxlen) {
-    unsigned int size = maxlen;
-    //Mac OS X: _NSGetExecutablePath() (man 3 dyld)
-    if (_NSGetExecutablePath(buf, &size) == 0) {
-        fprintf(stderr, "executable path is %s\n", buf);
-        return buf;
+#if (__APPLE__)
+static std::string getExecutablePath() {
+    std::string exePath;
+    uint32_t size = 0;
+    char empty[] = "";
+    char* buf = empty;
+    _NSGetExecutablePath(buf, &size);
+    buf = (char*) alloca(size);
+    if (_NSGetExecutablePath(buf, &size) == -1) {
+        abort();
     }
-    else {
-        fprintf(stderr, "buffer too small; need size %u\n", size);
-        return NULL;
+    buf = realpath(buf, NULL);
+    if (!buf) {
+        abort();
     }
-    //Linux: readlink /proc/self/exe
-    //Solaris: getexecname()
-    //FreeBSD: sysctl CTL_KERN KERN_PROC KERN_PROC_PATHNAME -1
-    //FreeBSD if it has procfs: readlink /proc/curproc/file (FreeBSD doesn't have procfs by default)
-    //NetBSD: readlink /proc/curproc/exe
-    //DragonFly BSD: readlink /proc/curproc/file
-    //Windows: GetModuleFileName() with hModule = NULL
-
+    exePath = buf;
+    free(buf);
+    return exePath;
 }
 #elif defined(LINUX)
 #include <unistd.h>
@@ -1286,15 +1199,10 @@ static char * allocRvmCmdsForCustomCmds(const char * const p_cmd_start) {
 
 static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
     char * p_rval = NULL;
-
-    if (NULL == p_opt->optionString)
+    if (NULL == p_opt || NULL == p_opt->optionString)
         return NULL;
 
-    if (('_' == p_opt->optionString[0])) {
-        // Non-standard option names must begin with "-X" or an underscore ("_"). For example, the JDK/JRE supports -Xms and -Xmx options to allow programmers specify the initial and maximum heap size. Options that begin with "-X" are accessible from the "java" command line.
-        p_rval = allocRvmCmdsForCustomCmds(&p_opt->optionString[1]);
-    }
-    if (('-' == p_opt->optionString[0])) {
+    if ('-' == p_opt->optionString[0] || '_' == p_opt->optionString[0]) {
         switch (p_opt->optionString[1]) {
         case 'd':
         case 'D':
@@ -1325,8 +1233,6 @@ static char * getRVMOptionForJvmOption(const JavaVMOption* const p_opt) {
                         "%s:\n\t-verbose[:class|gc|jni] option not yet supported!\n",
                         p_opt->optionString);
 
-                // Default to "debug" logging if any verbose logging is enabled.
-                p_rval = allocRvmCmdsForCustomCmds("rvm:log=debug");
             }
             break;
         default:
@@ -1356,7 +1262,6 @@ static void swapCharPtrs(char **ppC0, char **ppC1) {
 static jboolean createMainArgumentsFromVmArgs(
         const JavaVMInitArgs* const p_vm_args, int *r_argc, char ***r_argv) {
     jboolean ok = FALSE;
-    const int MAX_PATH = 1024;
 
     // Arg0 to robovm always is the path to the exe
     const int n_argc_alloc = (p_vm_args) ? 1 + p_vm_args->nOptions : 1;
@@ -1377,6 +1282,7 @@ static jboolean createMainArgumentsFromVmArgs(
     if (p_vm_args) {
         ok = TRUE;
         const int numOptions = p_vm_args->nOptions;
+        fprintf( stderr, "nOptions = %d\n", numOptions );
         for (int i = 0; i < numOptions; i++) {
             const JavaVMOption* const p_opt = &p_vm_args->options[i];
             if ((NULL != p_opt) && (NULL != p_opt->optionString)) {
@@ -1398,6 +1304,8 @@ static jboolean createMainArgumentsFromVmArgs(
                 "createMainArgumentsFromVmArgs(...): p_vm_args == NULL!\n");
     }
 
+    fprintf(stderr,
+            "\nSorting!\n");
     // Move any NULL pointers to the end of pp_argv (bubble sort since it's dead simple
     // and we won't ever be passing too many parameters.)
     {
@@ -1413,12 +1321,15 @@ static jboolean createMainArgumentsFromVmArgs(
         } while (!sorted);
     }
     // DONE -- Move any NULL pointers to the end of pp_argv (bubble sort - meh.)
+    fprintf(stderr,
+            "\nSorting done!\n");
 
     // Count the number of contiguous parameters;
     {
         int n_argc = 0;
         while (pp_argv[n_argc]) {
             n_argc++;
+            fprintf(stderr, "found argv[%d] = %s\n", n_argc, pp_argv[n_argc]);
         }
         if (r_argc)
             *r_argc = n_argc;
@@ -1427,6 +1338,9 @@ static jboolean createMainArgumentsFromVmArgs(
 
     if (r_argv)
         *r_argv = pp_argv;
+
+    fprintf(stderr,
+            "\ncreateMainArgumentsFromVmArgs() done!\n");
 
     return ok;
 }
@@ -1469,7 +1383,7 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
     } else {
         // TODO: Do with real code that maps natively, rather than adding faked argc, argv.
         const int argc = 1;
-        char path[1024];
+        char path[MAX_PATH];
         char *argv1 = getExecutablePath(path, sizeof(path));
         char *argv[2] = { argv1, NULL };
 

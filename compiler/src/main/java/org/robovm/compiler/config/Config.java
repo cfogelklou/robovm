@@ -785,6 +785,7 @@ public class Config {
 
         if (!skipLinking && mainClass == null) {
         	if ( forceLinkClasses != null && forceLinkClasses.size() != 0 ) {
+        		logger.warn("No main class specified, so assuming it is the first force-linked class.");
         		mainClass = forceLinkClasses.get(0);
         	}
         }
