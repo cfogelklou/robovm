@@ -430,14 +430,18 @@ public class AppCompiler {
         
         // TODO: REMOVE!
         //config.getLogger().debug("AppCompiler.java!!!!!");
-        System.out.println("AppCompiler.java!!!!!111!!! June 11");
+        System.out.println("These were the "+ args.length + " args...");
         {
-        	String theArgs = new String();
+        	//String theArgs = new String();
+        	int i = 0;
             for (String s : args) {
-            	theArgs += s + " ";
+            	//theArgs += s + " ";
+            	System.out.println("" + i + "=" + s);
+            	i++;
             }
-            System.out.println(theArgs);
+            //System.out.println(theArgs);
         }
+        System.out.println("AppCompiler.java!!!!!111!!! June 12");
         	
         
         try {
