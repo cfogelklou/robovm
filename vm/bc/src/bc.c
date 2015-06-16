@@ -1267,7 +1267,8 @@ static jboolean createMainArgumentsFromVmArgs(
     jboolean ok = FALSE;
 
     // Arg0 to robovm always is the path to the exe
-    const int n_argc_alloc = (p_vm_args) ? 1 + p_vm_args->nOptions : 1;
+    const int num_options = (p_vm_args) ? p_vm_args->nOptions : 1;
+    const int n_argc_alloc = 1 + num_options;
 
     // We allocate an argv for every incoming option.
     char **pp_argv = malloc(sizeof(char*) * n_argc_alloc);
@@ -1284,9 +1285,8 @@ static jboolean createMainArgumentsFromVmArgs(
     // Argv[1..n_argc] are converted forms of the options flags.
     if (p_vm_args) {
         ok = TRUE;
-        const int numOptions = p_vm_args->nOptions;
-        fprintf( stderr, "nOptions = %d\n", numOptions );
-        for (int i = 0; i < numOptions; i++) {
+        fprintf( stderr, "nOptions = %d\n", num_options );
+        for (int i = 0; i < num_options; i++) {
             const JavaVMOption* const p_opt = &p_vm_args->options[i];
             if ((NULL != p_opt) && (NULL != p_opt->optionString)) {
             	fprintf(stderr, "getRVMOptionForJvmOption(%d = %s)\n", i, p_opt->optionString);
@@ -1299,6 +1299,9 @@ static jboolean createMainArgumentsFromVmArgs(
             if (!ok) {
                 fprintf(stderr, "pp_argv[1 + %d] = NULL\n", i);
             }
+            else {
+                fprintf(stderr, "pp_argv[1 + %d] = %s\n", i, pp_argv[1 + i]);
+            }
         }
         ok |= p_vm_args->ignoreUnrecognized;
     }
@@ -1307,15 +1310,14 @@ static jboolean createMainArgumentsFromVmArgs(
                 "createMainArgumentsFromVmArgs(...): p_vm_args == NULL!\n");
     }
 
-    fprintf(stderr,
-            "\nSorting!\n");
+    fprintf(stderr, "\nSorting!\n");
     // Move any NULL pointers to the end of pp_argv (bubble sort since it's dead simple
     // and we won't ever be passing too many parameters.)
     {
         jboolean sorted;
         do {
             sorted = TRUE;
-            for (int i = 0; i < (n_argc_alloc - 1); i++) {
+            for (int i = 0; i < num_options; i++) {
                 if ((NULL == pp_argv[i]) && (NULL != pp_argv[i + 1])) {
                     swapCharPtrs(&pp_argv[i], &pp_argv[i + 1]);
                     sorted = FALSE;
@@ -1329,9 +1331,9 @@ static jboolean createMainArgumentsFromVmArgs(
     // Count the number of contiguous parameters;
     {
         int n_argc = 0;
-        while (pp_argv[n_argc]) {
-            n_argc++;
+        while (pp_argv[n_argc] && n_argc < n_argc_alloc) {
             fprintf(stderr, "found argv[%d] = %s\n", n_argc, pp_argv[n_argc]);
+            n_argc++;
         }
         if (r_argc)
             *r_argc = n_argc;
@@ -1347,11 +1349,11 @@ static jboolean createMainArgumentsFromVmArgs(
     return ok;
 }
 
-void deallocArgCArgV(char ** argv) {
+void deallocArgCArgV(char ** argv, const int argc) {
     if (NULL == argv)
         return;
     int i = 0;
-    while (argv[i]) {
+    while ((i < argc) && (NULL != argv[i])) {
         free(argv[i]);
         argv[i++] = NULL;
     }
@@ -1367,21 +1369,21 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
     fprintf(stderr, "June 15, 2015\n");
 
     JavaVMInitArgs *vm_args = (JavaVMInitArgs *) pvm_args;
-    fprintf(stderr, "JNI_CreateJavaVM(p_vm=0x%x, p_env=0x%x, pvm_args=0x%x)\n", (unsigned int)p_vm, (unsigned int)p_env, (unsigned int)pvm_args);
+    fprintf(stderr, "JNI_CreateJavaVM(p_vm=0x%x, p_env=0x%x, pvm_args=0x%x)\n", (unsigned int)(uintptr_t)p_vm, (unsigned int)(uintptr_t)p_env, (unsigned int)(uintptr_t)pvm_args);
     if (NULL != vm_args) {
         int argc = 0;
         char **argv = NULL;
         if (!createMainArgumentsFromVmArgs(vm_args, &argc, &argv)) {
             fprintf(stderr, "createMainArgumentsFromVmArgs(...) failed!\n");
-            deallocArgCArgV(argv);
+            deallocArgCArgV(argv, argc);
             return 1;
         }
         if (!rvmInitOptions(argc, argv, &options, FALSE)) {
             fprintf(stderr, "rvmInitOptions(...) failed!\n");
-            deallocArgCArgV(argv);
+            deallocArgCArgV(argv, argc);
             return 1;
         }
-        deallocArgCArgV(argv);
+        deallocArgCArgV(argv, argc);
     } else {
         // TODO: Do with real code that maps natively, rather than adding faked argc, argv.
         const int argc = 1;
