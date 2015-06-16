@@ -1324,8 +1324,7 @@ static jboolean createMainArgumentsFromVmArgs(
         } while (!sorted);
     }
     // DONE -- Move any NULL pointers to the end of pp_argv (bubble sort - meh.)
-    fprintf(stderr,
-            "\nSorting done!\n");
+    fprintf(stderr, "\nSorting done!\n");
 
     // Count the number of contiguous parameters;
     {

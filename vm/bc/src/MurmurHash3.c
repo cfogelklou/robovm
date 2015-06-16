@@ -33,7 +33,8 @@
 // For use with -fPIC on Linux, sometimes these functions cannot be
 // inlined, so use inline to ensure that compilation is OK even without
 // inlining.
-#define FORCE_INLINE inline
+//#define FORCE_INLINE inline
+#define FORCE_INLINE
 #else
 #define FORCE_INLINE __attribute__((always_inline))
 #endif
