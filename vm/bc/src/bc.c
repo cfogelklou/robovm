@@ -1144,23 +1144,26 @@ jint JNI_GetDefaultJavaVMInitArgs(void* vm_args) {
 }
 
 #if (__APPLE__)
-static std::string getExecutablePath() {
-    std::string exePath;
-    uint32_t size = 0;
-    char empty[] = "";
-    char* buf = empty;
-    _NSGetExecutablePath(buf, &size);
-    buf = (char*) alloca(size);
-    if (_NSGetExecutablePath(buf, &size) == -1) {
-        abort();
+#include <dlfcn.h>
+char *getExecutablePath(char * const buf, const int maxlen) {
+    unsigned int size = maxlen;
+    //Mac OS X: _NSGetExecutablePath() (man 3 dyld)
+    if (_NSGetExecutablePath(buf, &size) == 0) {
+        fprintf(stderr, "executable path is %s\n", buf);
+        return buf;
     }
-    buf = realpath(buf, NULL);
-    if (!buf) {
-        abort();
+    else {
+        fprintf(stderr, "buffer too small; need size %u\n", size);
+        return NULL;
     }
-    exePath = buf;
-    free(buf);
-    return exePath;
+    //Linux: readlink /proc/self/exe
+    //Solaris: getexecname()
+    //FreeBSD: sysctl CTL_KERN KERN_PROC KERN_PROC_PATHNAME -1
+    //FreeBSD if it has procfs: readlink /proc/curproc/file (FreeBSD doesn't have procfs by default)
+    //NetBSD: readlink /proc/curproc/exe
+    //DragonFly BSD: readlink /proc/curproc/file
+    //Windows: GetModuleFileName() with hModule = NULL
+
 }
 #elif defined(LINUX)
 #include <unistd.h>
