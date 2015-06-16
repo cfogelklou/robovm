@@ -81,15 +81,15 @@ public abstract class AbstractTarget implements Target {
     
     public void build(List<File> objectFiles) throws IOException {
         final TargetBinary targetBinary = config.getTargetBinary();
-        String executableName = config.getBinaryName();
+        String binaryName = config.getBinaryName();
         final boolean isOSX = (config.getOs() == OS.macosx);
         final boolean isIOS = (config.getOs() == OS.ios);
         final boolean isDarwin = (config.getOs().getFamily() == OS.Family.darwin);
         final boolean isLinux  = (config.getOs().getFamily() == OS.Family.linux);
         
-      	config.getLogger().debug("Building binary %s", executableName);
+      	config.getLogger().debug("Building binary %s", binaryName);
         
-      	File outFile = new File(config.getTmpDir(), executableName);
+      	File outFile = new File(config.getTmpDir(), binaryName);
         
         LinkedList<String> ccArgs = new LinkedList<String>();
         LinkedList<String> libs = new LinkedList<String>();
@@ -203,7 +203,7 @@ public abstract class AbstractTarget implements Target {
                 libs.add("-framework");
                 libs.add("CoreServices");
             }
-        } else if (isOSX) {
+        } else if (isIOS) {
             if (!config.getFrameworks().contains("MobileCoreServices")) {
                 libs.add("-framework");
                 libs.add("MobileCoreServices");
