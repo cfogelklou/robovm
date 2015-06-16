@@ -242,7 +242,7 @@ jboolean rvmInitOptions(int argc, char* argv[], Options* options, jboolean ignor
     }
 
     // TODO CHFO Remove
-    fprintf(stderr, "options->mainClass = 0x%x\n", options->mainClass);
+    fprintf(stderr, "options->mainClass = 0x%x\n", (unsigned int)(uintptr_t)options->mainClass);
 
     return options->mainClass != NULL;
 }

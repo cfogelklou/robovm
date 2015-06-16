@@ -1366,6 +1366,7 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
 
     initOptions();
 
+
     fprintf(stderr, "June 15, 2015\n");
 
     JavaVMInitArgs *vm_args = (JavaVMInitArgs *) pvm_args;
@@ -1383,6 +1384,8 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
             deallocArgCArgV(argv, argc);
             return 1;
         }
+
+        bc_options_dbg( &options, TRUE );
         deallocArgCArgV(argv, argc);
     } else {
         // TODO: Do with real code that maps natively, rather than adding faked argc, argv.
@@ -1395,6 +1398,7 @@ jint JNI_CreateJavaVM(JavaVM** p_vm, JNIEnv** p_env, void* pvm_args) {
             fprintf(stderr, "rvmInitOptions(...) failed!\n");
             return 1;
         }
+        bc_options_dbg( &options, TRUE );
     }
 
     // Start up robovm (JNI)
