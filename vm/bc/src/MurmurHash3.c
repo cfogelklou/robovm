@@ -29,12 +29,11 @@
 #else	// defined(_MSC_VER)
 
 #if defined(__linux__)
-//-----------------------------------------------------------------------------
-// For use with -fPIC on Linux, sometimes these functions cannot be
-// inlined, so use inline to ensure that compilation is OK even without
-// inlining.
-//#define FORCE_INLINE inline
+#if defined(NDEBUG)
+#define FORCE_INLINE inline
+#else
 #define FORCE_INLINE
+#endif
 #else
 #define FORCE_INLINE __attribute__((always_inline))
 #endif
